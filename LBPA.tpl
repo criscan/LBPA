@@ -1,47 +1,46 @@
 DATA_SECTION
 
-  init_vector parbiol(1,8)
-  init_number nedades  
-  //init_vector edades(1,nedades)
+  init_vector biolpar(1,8)
+  init_number nages  
   init_number nrep
   init_vector pond(1,nrep)
-  init_number ntallas
-  init_vector Tallas(1,ntallas) 
-  init_matrix Fr_tallas(1,nrep,1,ntallas)
+  init_number nlength
+  init_vector len_bins(1,nlength) 
+  init_matrix LF_data(1,nrep,1,nlength)
 
   init_number L50prior // 
-  init_number rangoprior // 
+  init_number slopeprior // 
   init_number Fcrprior // 
   init_number Loprior //
   init_number s1prior //
   init_number s2prior // 
 
 
- // Coeficientes de variación prior
-  init_number cv4 // A50
-  init_number cv99 // rango selectividad
-  init_number cv100 // Fcr
-  init_number cv1 // Lo
-  init_number cv2 // aedad
-  init_number cv3 // bedad
+ // Coef of variation prior
+  init_number cv4 // L50
+  init_number cv99 // slope
+  init_number cv100 // F
+  init_number cv1 // Lr
+  init_number cv2 // ao
+  init_number cv3 // cv
 
- // Fases de estimacion
-  init_int  f3 // A50
-  init_int  f4 // rango selectividad
-  init_int  f2 // Fcr
+ // Phases
+  init_int  f3 // L50
+  init_int  f4 // slope
+  init_int  f2 // F
   init_int  f7 // Lo
-  init_int  f5 // s1
-  init_int  f6 // s2
+  init_int  f5 // a0
+  init_int  f6 // cv
 
   number logL50ini
-  number lograngoini
+  number logslopeini
   number logFcrini
   number logLoini
   number logs1ini
   number logs2ini
 
  !! logL50ini=log(L50prior);
- !! lograngoini=log(rangoprior);
+ !! logslopeini=log(slopeprior);
  !! logFcrini=log(Fcrprior);
  !! logLoini=log(Loprior);
  !! logs1ini=log(s1prior);
@@ -52,13 +51,13 @@ DATA_SECTION
   init_number h
 
 
-  init_number nm // Ctallaa
+  init_number nm // sample size
 
 INITIALIZATION_SECTION
 
   log_Fcr    logFcrini
   log_L50    logL50ini
-  log_rango  lograngoini
+  log_rango  logslopeini
   log_alfa   logs1ini
   log_beta   logs2ini
   log_Lo     logLoini
@@ -75,89 +74,64 @@ PARAMETER_SECTION
  init_number log_Ftar(5)
 
 
- vector N0(1,nedades)
- vector Ntar(1,nedades)
- vector N(1,nedades)
- vector Sel_a(1,nedades)
- vector Sel(1,ntallas)
- vector F(1,nedades)
- vector Z(1,nedades)
- vector S(1,nedades)
- vector mu_edad(1,nedades)
- vector sigma_edad(1,nedades)
- vector Capt(1,nedades)
- vector wmed(1,ntallas)
- vector msex(1,ntallas)
- vector Ps(1,nedades)
- vector pred_Ctot_a(1,nedades)
- vector pred_Ctot(1,ntallas)
+ vector N0(1,nages)
+ vector Ntar(1,nages)
+ vector N(1,nages)
+ vector Sel_a(1,nages)
+ vector Sel(1,nlength)
+ vector F(1,nages)
+ vector Z(1,nages)
+ vector S(1,nages)
+ vector mu_edad(1,nages)
+ vector sigma_edad(1,nages)
+ vector wmed(1,nlength)
+ vector msex(1,nlength)
+ vector Ps(1,nages)
+ vector pred_Ctot_a(1,nages)
+ vector pred_Ctot(1,nlength)
  vector likeval(1,10)
- vector edades(1,nedades)
+ vector edades(1,nages)
 
- matrix prop_obs(1,nrep,1,ntallas)
- vector prop_pred(1,ntallas)
-
+ matrix prop_obs(1,nrep,1,nlength)
+ vector prop_pred(1,nlength)
 
  number Linf
  number k
  number Lo
  number M
- number Nest
- number Nobs
  number s
  number SPR
  number SPRtar
  
- 
-
- matrix Prob_talla(1,nedades,1,ntallas) 
- matrix FrecL(1,nedades,1,ntallas)
-
- vector Fref(1,500)
- vector YPR(1,500)
- vector BPR(1,500)
- vector Lmed(1,500)
- vector Lmed2(1,500)
- number Fpbr
- number SPRFcr
- number YPRFcr
- number F01
+ matrix Prob_talla(1,nages,1,nlength) 
+ matrix FrecL(1,nages,1,nlength)
 
  number alfa
  number beta
  number dts
  number B0
 
- //sdreport_vector RPRlp(1,ntime) // 
- //sdreport_number SSBo
-
-
  objective_function_value f
-
-
 
 PRELIMINARY_CALCS_SECTION
 
 
- Linf=parbiol(1);
- k=parbiol(2);
- M=parbiol(3);
- dts=parbiol(8);
+ Linf=biolpar(1);
+ k=biolpar(2);
+ M=biolpar(3);
+ dts=biolpar(8);
  Ps=0.0;
  
-
-
-
 
 PROCEDURE_SECTION
 
 
- Eval_prob_talla_edad();
- Eval_Dinamica_equilibrio();
- Eval_logverosim();
+ Prob_length2age();
+ Pop_Dynamic();
+ Log_likelihood();
   
 
-FUNCTION Eval_prob_talla_edad
+FUNCTION Prob_length2age
 
   int i, j;
 
@@ -166,17 +140,17 @@ FUNCTION Eval_prob_talla_edad
 
 // genero una clave edad-talla para otros calculos. Se modela desde L(1)
  mu_edad(1)=exp(log_Lo);
- for (i=2;i<=nedades;i++)
+ for (i=2;i<=nages;i++)
   {
   mu_edad(i)=Linf*(1-exp(-k))+exp(-k)*mu_edad(i-1);
   }
 
   sigma_edad=exp(log_alfa)+exp(log_beta)*mu_edad;
   
-  Prob_talla = ALK( mu_edad, sigma_edad, Tallas);
+  Prob_talla = ALK( mu_edad, sigma_edad, len_bins);
 
-  wmed=exp(parbiol(4))*pow(Tallas,parbiol(5));
-  msex=1./(1+exp(-log(19)*(Tallas-parbiol(6))/(parbiol(7)-parbiol(6))));
+  wmed=exp(biolpar(4))*pow(len_bins,biolpar(5));
+  msex=1./(1+exp(-log(19)*(len_bins-biolpar(6))/(biolpar(7)-biolpar(6))));
 
 //----------------------------------------------------------------------
 FUNCTION dvar_matrix ALK(dvar_vector& mu, dvar_vector& sig, dvector& x)
@@ -203,10 +177,10 @@ FUNCTION dvar_matrix ALK(dvar_vector& mu, dvar_vector& sig, dvector& x)
 	return(pdf);
 //----------------------------------------------------------------------
 
-FUNCTION Eval_Dinamica_equilibrio
+FUNCTION Pop_Dynamic
 
 // Selectivity at-length /////////
-  Sel=1./(1+exp(-log(19)*(Tallas-exp(log_L50))/(exp(log_rango))));
+  Sel=1./(1+exp(-log(19)*(len_bins-exp(log_L50))/(exp(log_rango))));
 // Selectivity at-age
   Sel_a=Prob_talla*Sel;
 
@@ -219,9 +193,9 @@ FUNCTION Eval_Dinamica_equilibrio
 
  // Unfished biomass////////////////////////////
   N0(1)=1.0;
-  for (int j=2;j<=nedades;j++)
+  for (int j=2;j<=nages;j++)
   { N0(j)=N0(j-1)*exp(-1.*M);}
-    N0(nedades)=N0(nedades)/(1-exp(-1.*M));
+    N0(nages)=N0(nages)/(1-exp(-1.*M));
   B0=sum(elem_prod((N0*exp(-dts*M))*Prob_talla,elem_prod(wmed,msex)));
 
   alfa=4*h/(5*h-1);
@@ -230,16 +204,16 @@ FUNCTION Eval_Dinamica_equilibrio
 
  // LF estimation ////////////////////////////
   N(1)=1.0;
-  for (int i=2;i<=nedades;i++){
+  for (int i=2;i<=nages;i++){
   N(i)=N(i-1)*exp(-Z(i-1));
   }
-  N(nedades)=N(nedades)/(1-exp(-Z(nedades)));
+  N(nages)=N(nages)/(1-exp(-Z(nages)));
   pred_Ctot_a=elem_prod(elem_div(F,Z),elem_prod(1.-S,N));
   pred_Ctot=pred_Ctot_a*Prob_talla;
 
  // Proportions ////////////////////////////
   for (int j=1;j<=nrep;j++){
-  prop_obs(j)=Fr_tallas(j)/sum(Fr_tallas(j));
+  prop_obs(j)=LF_data(j)/sum(LF_data(j));
   }
   prop_pred=pred_Ctot/sum(pred_Ctot);
 
@@ -250,32 +224,36 @@ FUNCTION Eval_Dinamica_equilibrio
   Ntar(1)=1.0;
   Z=M+exp(log_Ftar)*Sel_a;
   
-  for (int i=2;i<=nedades;i++){
+  for (int i=2;i<=nages;i++){
   Ntar(i)=Ntar(i-1)*exp(-Z(i-1));
   }
-  Ntar(nedades)=Ntar(nedades)/(1-exp(-Z(nedades)));
+  Ntar(nages)=Ntar(nages)/(1-exp(-Z(nages)));
 
-  // Per-recruit biomass and yield /////////////////////////
+  // Per-recruit biomass /////////////////////////
   SPRtar=1/B0*(alfa*sum(elem_prod(elem_prod(Ntar,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
 
 
-FUNCTION Eval_logverosim
+FUNCTION Log_likelihood
 
 
   s=0;
   for (int j=1;j<=nrep;j++){
-  s+=-nm*sum(pond(j)*elem_prod(prop_obs(j),log(prop_pred)));// Fr_tallas
+  s+=-nm*sum(pond(j)*elem_prod(prop_obs(j),log(prop_pred)));// LF_data
   }
 
 
-  likeval(1)=s;// Fr_tallas
+  likeval(1)=s;// LF_data
   likeval(2)=0.5*square((log_Lo-logLoini)/cv1);
   likeval(3)=0.5*square((log_alfa-logs1ini)/cv2);
   likeval(4)=0.5*square((log_beta-logs2ini)/cv3);
   likeval(5)=0.5*square((log_L50-logL50ini)/cv4);
-  likeval(6)=0.5*square((log_rango-lograngoini)/cv99);
+  likeval(6)=0.5*square((log_rango-logslopeini)/cv99);
   likeval(7)=0.5*square((log_Fcr-logFcrini)/cv100);
-  likeval(8)=1000*square((log(SPRtar)-log(ratio)));
+
+  if(last_phase()){
+
+  likeval(8)=1000*square((log(SPRtar)-log(ratio)));}
+  
 
   f=sum(likeval);
 
@@ -284,7 +262,7 @@ FUNCTION Eval_logverosim
 
 REPORT_SECTION
 
-  for (int i=1;i<=nedades;i++){
+  for (int i=1;i<=nages;i++){
     FrecL(i)=Prob_talla(i)*pred_Ctot_a(i);
   }
 
@@ -295,7 +273,7 @@ REPORT_SECTION
   report << "-----------------------------------------------------------------------------" << endl;
   report << "Length" << endl;
   report << "---------------------------------------------------------------------------- " << endl;
-  report <<  Tallas << endl;
+  report <<  len_bins << endl;
   report << "---------------------------------------------------------------------------- " << endl;
   report << "Observed frequencies" << endl;
   report <<  prop_obs << endl;
@@ -315,7 +293,7 @@ REPORT_SECTION
 
   report << "Age  Length  S.E   N   Catch   Select     F   " << endl;
   report << "----------------------------------------------------- " << endl;
-  for (int j=1;j<=nedades;j++){ // l
+  for (int j=1;j<=nages;j++){ // l
   report << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<endl; 
   }
 
@@ -323,8 +301,8 @@ REPORT_SECTION
  report << " "<<endl;
  report << " "<<endl;
 
-    for (int i=1;i<=nedades;i++){
-    if(mu_edad(i)>=parbiol(1)*2/3){
+    for (int i=1;i<=nages;i++){
+    if(mu_edad(i)>=biolpar(1)*2/3){
     Ps(i)=1;
     }};
   
@@ -340,7 +318,7 @@ REPORT_SECTION
  
  report << "Model parameters " << endl;
  report << "----------------------------------------------------- " <<endl;
- report<<"F	L50	slope   a0    cv  Lr      Ftar"<<endl;
+ report<<"F	 L50	 slope   a0    cv  Lr      Ftar"<<endl;
  report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<exp(log_Ftar)<<endl;
  report << " "<<endl;
  report << " "<<endl;
