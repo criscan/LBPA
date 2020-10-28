@@ -42,11 +42,6 @@ Alert to any bugs or issues by using GitHub. Suggestions and comments for additi
 
 In this folder you need put two files, .tpl and .dat to run LBPA estimation model 
 
-```{r echo=FALSE, eval=TRUE}
-rm(list=ls(all=TRUE))  # Borra todas los objetos creados
-setwd('~/IFOP/Escritos/LBPA')
-```
-
 ```{r echo=TRUE, eval=FALSE}
 rm(list=ls(all=TRUE))  # erasure all objects
 setwd('~/')
@@ -60,9 +55,6 @@ dir()
 
 Is necessary to get a function to can read report. This function is hold in the same folder than .tpl and .dat.
 
-```{r echo=FALSE, eval=TRUE}
-source('~/IFOP/Escritos/LBPA/LBPA_Guide/read.admb.R')
-```
 
 ```{r echo=TRUE, eval=FALSE}
 source('~/read.admb.R')
@@ -157,10 +149,10 @@ Fm     <- (data$Age_Length_SE_N_Catch_Select_F[,7])
 
 ```{r fig.cap="Parameters used in LBPA estimation model"}
 p <- ggplot(data=NULL, aes(x=age))+
-  geom_line(aes(y = Length,  fill= "#238b45"))+
+  geom_line(aes(y = Length,  colour=2))+
   theme_bw()
 q <- ggplot(data=NULL, aes(x=age))+
-  geom_line(aes(y = SE,  fill= "#41b6c4"))+
+  geom_line(aes(y = SE,  colour=3))+
   theme_bw()
 s <- ggplot(data=NULL, aes(x=age))+
   geom_line(aes(y = Fm,  colour = 4))+
