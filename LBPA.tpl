@@ -269,7 +269,7 @@ REPORT_SECTION
 
   report << "Length Based Pseudo-Cohort Analysis (LBPA) " << endl;
   report << "cristian.canales.r@pucv.cl " << endl;
-  
+  report << "Canales C.M, A.E. Punt, & M. Mardones (2021) " << endl;
   report << "-----------------------------------------------------------------------------" << endl;
   report << "Length" << endl;
   report << "---------------------------------------------------------------------------- " << endl;
