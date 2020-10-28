@@ -1,0 +1,213 @@
+---
+title: "Guide to aplicitation of LBPA in data-limited fisheries situations"
+subtitle: "Length Based Pseudo-Cohort Analysis"
+author: "Canales, C., Punt, AE., Mardones, M."
+date: "`r Sys.Date()`"
+output: pdf_document
+toc: TRUE
+---
+
+```{r setup, include=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(patchwork)
+library(knitr)
+```
+
+\pagebreak
+
+# Introduction
+
+This guide contains functions to compile and run the Length-based PseudoCohort Analysis (LBPA) fisheries stock assessment method in data limited conditions
+
+This model is an estimation model by fitting to length composition data to estimate annual fishing mortality, annual recruitment and spawning potential ratio (SPR)
+
+LBPA was developed for data-limited fisheries, where few data are available other than a representative sample of the size structure of the vulnerable portion of the population (i.e., length composition data from the catch) and an understanding of the life history of the species.
+
+# Basic functionality
+
+The LBPA model is built based on a C ++ language programmed in ADMB, and below we provide the steps to compile and build from a simple code implemented in R that had next step.
+
+To do this, you must have installed the ADMB version (12 or newer). Can download in this site: <http://www.admb-project.org/>
+
+The LBPA model and data example can be obtained from <https://github.com/CristianCanales/LBPA>
+
+
+### Bug Reports
+Alert to any bugs or issues by using GitHub. Suggestions and comments for additional features are welcome and we can discuss via email at
+
+# Step 1
+
+## Set working directory
+
+In this folder you need put two files, .tpl and .dat to run LBPA estimation model 
+
+```{r echo=FALSE, eval=TRUE}
+rm(list=ls(all=TRUE))  # Borra todas los objetos creados
+setwd('~/IFOP/Escritos/LBPA')
+```
+
+```{r echo=TRUE, eval=FALSE}
+rm(list=ls(all=TRUE))  # erasure all objects
+setwd('~/')
+```
+
+Once you have defined your working directory, you can take a look and check the contains files.
+
+```{r eval=TRUE, echo=FALSE}
+dir()
+```
+
+Is necessary to get a function to can read report. This function is hold in the same folder than .tpl and .dat.
+
+```{r echo=FALSE, eval=TRUE}
+source('~/IFOP/Escritos/LBPA/LBPA_Guide/read.admb.R')
+```
+
+```{r echo=TRUE, eval=FALSE}
+source('~/read.admb.R')
+```
+
+# Step 2
+
+## Run model
+
+Now we compile it in ADMB set. If you have read it, dont need run again:
+
+```{r, warning=FALSE, eval=FALSE, echo=TRUE}
+system('~/admb-12.2/admb LBPA')
+```
+
+Now you need run the model with console. The *system* function could run *.tpl* code from R.
+
+```{r, warning=FALSE, eval=FALSE, echo=TRUE}
+system('./LBPA')
+```
+
+\pagebreak
+
+# Step 3
+
+## Read Report
+
+Once run our LBPA model, we can read report with *read.rep()* function.
+```{r}
+data <-read.rep('LBPA.rep')
+```
+
+In data example we have a set data from a clam  population from Bahía de Ancud, in southern Chile. You can change the data relative to your stock in the *.dat* hosted in the github repository
+
+Now, we can read data in our .rep file.
+
+```{r echo=FALSE}
+names(data)
+```
+
+We need assign variables to get different plots;
+
+```{r}
+BinLen <- data$Length
+ObsFre <- data$Observed_frequencies  
+PredFre <- data$Predicted_frequency 
+CatchLFre <- data$Catch_length_frequency 
+ProbLen <- data$Probability_of_length
+```
+
+Lets plot size structure from data
+
+```{r, echo=TRUE, fig.align="center", fig.cap= "Set of Length data with model adjust"}
+par(mfrow=c(3,3),mar=c(3,4,1,1)+1)
+for(i in 1:9){
+  plot(BinLen, ObsFre[i,],type="h", xlab="mm.", ylab="Lenght Density") 
+  lines(BinLen, PredFre, type="l", col=2)
+ }
+
+```
+
+\pagebreak
+
+we can do a plot with the sum of all length set data available;
+
+```{r  fig.cap= "Sum of Length data with model adjust"}
+plot(BinLen, ObsFre[7,],type="s", xlab="mm.", ylab="Lenght Density")
+lines(BinLen, PredFre, type="l", col=2, lwd=4)
+legend("topleft", c("Length Predicted", "Length Observed"), col=c(2, 1), lwd =c(1.5, 1.5), lty=c(1,1), bty="n", cex=0.8)
+```
+
+\pagebreak
+# Step 4
+
+## Ploting outputs LBPA
+
+Now we plot diferent outputs, as lengths, adjust models, fishing mortality, selectivity, maturity ogive and SPR.
+
+
+### Plot of estimates parameters
+
+```{r eval=TRUE, echo=FALSE}
+age    <- seq(1,10)
+Length <- (data$Age_Length_SE_N_Catch_Select_F[,2])
+SE     <- (data$Age_Length_SE_N_Catch_Select_F[,3])
+Abun   <- (data$Age_Length_SE_N_Catch_Select_F[,4])
+Catch  <- (data$Age_Length_SE_N_Catch_Select_F[,5])
+Selec  <- (data$Age_Length_SE_N_Catch_Select_F[,6])
+Fm     <- (data$Age_Length_SE_N_Catch_Select_F[,7])
+```
+
+
+```{r fig.cap="Parameters used in LBPA estimation model"}
+p <- ggplot(data=NULL, aes(x=age))+
+  geom_line(aes(y = Length,  fill= "#238b45"))+
+  theme_bw()
+q <- ggplot(data=NULL, aes(x=age))+
+  geom_line(aes(y = SE,  fill= "#41b6c4"))+
+  theme_bw()
+s <- ggplot(data=NULL, aes(x=age))+
+  geom_line(aes(y = Fm,  colour = 4))+
+  theme_bw()
+t <- ggplot(data=NULL, aes(x=age))+
+  geom_line(aes(y = Abun,  colour = 5))+
+  theme_bw()
+o <- ggplot(data=NULL, aes(x=age))+
+  geom_line(aes(y = Catch,  colour = 6))+
+  theme_bw()
+v <- ggplot(data=NULL, aes(x=age))+
+  geom_line(aes(y = Selec,  colour = 7))+
+  theme_bw()
+p/q|s/t|o/v
+```
+
+\pagebreak
+
+###  Length current, objetctive and expected
+
+```{r}
+L1 <- (data$Length_frequency_of_exploitable_population[1,])
+L2 <- (data$Length_frequency_of_exploitable_population[2,])
+L3 <- (data$Length_frequency_of_exploitable_population[3,])
+```
+
+
+```{r echo=FALSE, fig.cap="Set of Length estimated in LBPA" }
+L123 <- ggplot(data=NULL, aes(x=BinLen))+
+  geom_line(aes(y = L1, colour = 'Unfished'))+
+  geom_line(aes(y = L2, colour = 'Target'))+
+  geom_line(aes(y = L3, colour = 'Current'))+
+  scale_color_manual(name = '',
+                     values = c('red1', 'gold1', 'green'),
+                     limits = c('Unfished', 'Target', 'Current'),
+                     breaks = c('Unfished', 'Target', 'Current')) +
+  theme(legend.position = 'bottom') + ylab('Frecuency') + xlab('Length (mm.)') +
+  theme_bw()
+L123
+```
+
+### Table Parameters Models used in LBPA estimation model;
+
+```{r error=FALSE, warning=FALSE}
+tabla <- matrix(ncol=1, round(data$F_L50_slope_a0_cv_Lr_Ftar, 3))
+rownames(tabla) <- c("F", "L50", "Slope", "a0", "cv", "Lr", "F_Target")
+kable(tabla)
+```
+
+
