@@ -291,11 +291,12 @@ REPORT_SECTION
   report << " " << endl;
 
 
-  report << "Age  Length  S.E   N   Catch   Select     F   " << endl;
-  report << "----------------------------------------------------- " << endl;
+  report << "Age  Length  s.e   N   Catch   Selectivity   F    Weight  Maturity " << endl;
+  report << "------------------------------------------------------------------ " << endl;
   for (int j=1;j<=nages;j++){ // l
-  report << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<endl; 
+  report << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
   }
+
 
 
  report << " "<<endl;
@@ -307,7 +308,7 @@ REPORT_SECTION
     }};
   
 
- report << "Length frequency of exploitable population : current, target, virginal" << endl;
+ report << "Length frequency of exploitable population : current, target, unfished" << endl;
  report << "-------------------------------------------------------- " <<endl;
  report << elem_prod(N,Sel_a)*Prob_talla<<endl;
  report << elem_prod(Ntar,Sel_a)*Prob_talla<<endl;
