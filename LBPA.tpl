@@ -102,6 +102,10 @@ PARAMETER_SECTION
  number s
  number SPR
  number SPRtar
+ number Fref
+ number YPR
+ number BPR
+
  
  matrix Prob_talla(1,nages,1,nlength) 
  matrix FrecL(1,nages,1,nlength)
@@ -350,4 +354,34 @@ REPORT_SECTION
   report << sum(likeval) << endl;
 
 
+FINAL_SECTION
+
+ ofstream print_pr("per_recruit.txt");
+
+ //Per-recruit Analysis
+
+  print_pr <<"F     Y/R     SSB/R"<<endl;
+  print_pr <<"-------------------"<<endl;
+
+   Fref=0.0;
+   while(Fref<=5*M){
+   
+    F=Fref*Sel_a;
+    Z=F+M;
+    S=exp(-1.*Z);
+ 
+    N(1)=1.0;
+      for (int i=2;i<=nages;i++){
+    N(i)=N(i-1)*exp(-Z(i-1));
+    }
+
+  N(nages)=N(nages)/(1-exp(-Z(nages)));
+
+  BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));
+
+  print_pr <<Fref<<" "<<YPR<<" "<<BPR<<endl;
+
+  Fref+=0.05;
+  }
 
