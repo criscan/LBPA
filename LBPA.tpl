@@ -43,7 +43,7 @@ DATA_SECTION
  !! logslopeini=log(slopeprior);
  !! logFcrini=log(Fcrprior);
  !! logLoini=log(Loprior);
- !! logs1ini=log(s1prior);
+ !! logs1ini=log(s1prior+1E-5);
  !! logs2ini=log(s2prior);
 
 
@@ -105,7 +105,7 @@ PARAMETER_SECTION
  number Fref
  number YPR
  number BPR
-
+ 
  
  matrix Prob_talla(1,nages,1,nlength) 
  matrix FrecL(1,nages,1,nlength)
@@ -114,6 +114,8 @@ PARAMETER_SECTION
  number beta
  number dts
  number B0
+ number slope
+ 
 
  objective_function_value f
 
@@ -153,8 +155,10 @@ FUNCTION Prob_length2age
   
   Prob_talla = ALK( mu_edad, sigma_edad, len_bins);
 
+  slope=biolpar(7)-biolpar(6);
+
   wmed=exp(biolpar(4))*pow(len_bins,biolpar(5));
-  msex=1./(1+exp(-log(19)*(len_bins-biolpar(6))/(biolpar(7)-biolpar(6))));
+  msex=1./(1+exp(-log(19)*(len_bins-biolpar(6))/(slope)));
 
 //----------------------------------------------------------------------
 FUNCTION dvar_matrix ALK(dvar_vector& mu, dvar_vector& sig, dvector& x)
@@ -233,7 +237,7 @@ FUNCTION Pop_Dynamic
   }
   Ntar(nages)=Ntar(nages)/(1-exp(-Z(nages)));
 
-  // Per-recruit biomass /////////////////////////
+  // Per-recruit biomass and yield /////////////////////////
   SPRtar=1/B0*(alfa*sum(elem_prod(elem_prod(Ntar,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
 
 
@@ -272,10 +276,10 @@ REPORT_SECTION
 
 
   report << "Length Based Pseudo-Cohort Analysis (LBPA) " << endl;
-  report << "cristian.canales.r@pucv.cl " << endl;
   report << "Canales C.M, A.E. Punt, & M. Mardones (2021) " << endl;
+  report << "cristian.canales.r@pucv.cl " << endl;
   report << "-----------------------------------------------------------------------------" << endl;
-  report << "Length" << endl;
+  report << "Length bins" << endl;
   report << "---------------------------------------------------------------------------- " << endl;
   report <<  len_bins << endl;
   report << "---------------------------------------------------------------------------- " << endl;
@@ -296,11 +300,10 @@ REPORT_SECTION
 
 
   report << "Age  Length  s.e   N   Catch   Selectivity   F    Weight  Maturity " << endl;
-  report << "------------------------------------------------------------------ " << endl;
+  report << "----------------------------------------------------- " << endl;
   for (int j=1;j<=nages;j++){ // l
   report << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
   }
-
 
 
  report << " "<<endl;
@@ -354,7 +357,10 @@ REPORT_SECTION
   report << sum(likeval) << endl;
 
 
+
 FINAL_SECTION
+
+ 
 
  ofstream print_pr("per_recruit.txt");
 
@@ -377,6 +383,8 @@ FINAL_SECTION
 
   N(nages)=N(nages)/(1-exp(-Z(nages)));
 
+
+
   BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
   YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));
 
@@ -384,4 +392,6 @@ FINAL_SECTION
 
   Fref+=0.05;
   }
+
+ 
 
