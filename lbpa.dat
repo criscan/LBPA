@@ -38,7 +38,7 @@
 
 #Priors (parameter, coef. of variation, estimation phase)
 # L50     slope       F      Lr      a0       cv
-57.0       5.7       0.5     40.0    0.001    0.1
+57.0       5.7       0.5     40.0    0.0      0.1
 #coefficients of variation
  0.1       0.1      10.1     0.1      10.1    0.5
 #Estimation phases
