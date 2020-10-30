@@ -351,26 +351,19 @@ REPORT_SECTION
   report << likeval(6) << endl;
   report << "F" << endl;
   report << likeval(7) << endl;
-  report << "SPRtar" << endl;
-  report << likeval(8) << endl;
   report << "Total" << endl;
   report << sum(likeval) << endl;
 
 
 
-FINAL_SECTION
-
- 
-
- ofstream print_pr("per_recruit.txt");
-
- //Per-recruit Analysis
-
-  print_pr <<"F     Y/R     SSB/R"<<endl;
-  print_pr <<"-------------------"<<endl;
+  report <<" "<<endl;
+  report <<"Per-recruit Analysis"<<endl;
+  report <<" "<<endl;
+  report <<"F     Y/R     SSB/R"<<endl;
+  report <<"------------------------------------------------------"<<endl;
 
    Fref=0.0;
-   while(Fref<=5*M){
+   while(Fref<=3*exp(log_Fcr)){
    
     F=Fref*Sel_a;
     Z=F+M;
@@ -388,10 +381,7 @@ FINAL_SECTION
   BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
   YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));
 
-  print_pr <<Fref<<" "<<YPR<<" "<<BPR<<endl;
+  report <<Fref<<" "<<YPR<<" "<<BPR<<endl;
 
   Fref+=0.05;
   }
-
- 
-
