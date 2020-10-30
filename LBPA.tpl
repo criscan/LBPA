@@ -330,8 +330,9 @@ REPORT_SECTION
  report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<exp(log_Ftar)<<endl;
  report << " "<<endl;
  report << " "<<endl;
- report<<"F/Ftar  SPR"<<endl;
- report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<endl;
+ report<<"F/Ftar  SPR   SPRtar"<<endl;
+ report << "----------------------------------------------------- " <<endl;
+ report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<" "<<SPRtar<<endl;
 
  
   report << " " << endl;
