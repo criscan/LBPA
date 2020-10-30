@@ -367,7 +367,7 @@ FINAL_SECTION
  //Per-recruit Analysis
 
   print_pr <<"F     Y/R     SSB/R"<<endl;
-  print_pr <<"-------------------"<<endl;
+ //print_pr <<"-------------------"<<endl;
 
    Fref=0.0;
    while(Fref<=5*M){
