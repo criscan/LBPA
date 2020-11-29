@@ -23,4 +23,5 @@ For run the model, be keep to have into same directory/folder these files
 - LBPA.exe
 - LBPA.dat
 
+Also, you will find the executable file for windows (.mexe). Be keep to rename the extension file .mexe by .exe.
 Depending on your operating system, you can compile the source code (.tpl) as be necessary  
