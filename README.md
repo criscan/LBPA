@@ -13,7 +13,7 @@ likelihood, under the assumption that using more than one length-frequency sampl
 equilibrium conditions assumed in the model. This work provides guidelines that should
 be considered when using length-based pseudo-cohort models for data-poor fisheries.
 
-When run the model, be keep to have into same directory/folder these files
+When run the model, be keep to have into same directory/folder next files
 
 - LBPA.exe
 - LBPA.dat
