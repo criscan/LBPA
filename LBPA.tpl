@@ -274,76 +274,40 @@ REPORT_SECTION
     FrecL(i)=Prob_talla(i)*pred_Ctot_a(i);
   }
 
-
-  report << "Length Based Pseudo-Cohort Analysis (LBPA) " << endl;
-  report << "Canales C.M, A.E. Punt, & M. Mardones (2021) " << endl;
-  report << "cristian.canales.r@pucv.cl " << endl;
-  report << " " << endl;
-  report << "Length bins" << endl;
-  report << " " << endl;
+  report << "Length_bins" << endl;
   report <<  len_bins << endl;
-  report << " " << endl;
-  report << "Observed frequencies" << endl;
+  report << "Observed_frequencies" << endl;
   report <<  prop_obs << endl;
-  report << "Predicted frequency" << endl;
+  report << "Predicted_frequency" << endl;
   report <<  prop_pred << endl;
-  report << " " << endl;
-  report << "Catch length frequency (columns) by age groups (rows)" << endl;
- report << " " <<endl;
+  report << "Catch_length_frequency (columns) by age groups (rows)" << endl;
   report <<  FrecL  << endl;
-  report << " " << endl;
-  report << "Probability of length (columns) at-age (rows)" << endl;
- report << " " <<endl;
+  report << "Probability_of_length (columns) at-age (rows)" << endl;
   report <<  Prob_talla  << endl;
-  report << " " << endl;
-  report << " " << endl;
-
-
-  report << "Age  Length  s.e   N   Catch   Selectivity   F    Weight  Maturity " << endl;
-  report << " " << endl;
+  report << "Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity " << endl;
+  
   for (int j=1;j<=nages;j++){ // l
   report << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
   }
-
-
- report << " "<<endl;
- report << " "<<endl;
 
     for (int i=1;i<=nages;i++){
     if(mu_edad(i)>=biolpar(1)*2/3){
     Ps(i)=1;
     }};
   
-
- report << "Length frequency of exploitable population : current, target, unfished" << endl;
- report << " " <<endl;
- report << elem_prod(N,Sel_a)*Prob_talla<<endl;
- report << elem_prod(Ntar,Sel_a)*Prob_talla<<endl;
- report << elem_prod(N0,Sel_a)*Prob_talla<<endl;
-
- report << " " <<endl;
- report << "Selectivity and maturity at-length" << endl;
- report << " " <<endl;
- report << Sel<<endl;
- report << msex<<endl;
-
- report << " "<<endl;
- report << " "<<endl;
- 
- report << "Model parameters " << endl;
- report << " " <<endl;
- report<<"F	 L50	 slope   a0    cv  Lr      Ftar"<<endl;
- report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<exp(log_Ftar)<<endl;
- report << " "<<endl;
- report << " "<<endl;
- report<<"F/Ftar  SPR   SPRtar"<<endl;
- report << " " <<endl;
- report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<" "<<SPRtar<<endl;
-
- 
-  report << " " << endl;
-  report << "Log-likelihood components" << endl;
- report << " " <<endl;
+  report << "Length_frequency_of_exploitable_population_current_target_unfished" << endl;
+  report << elem_prod(N,Sel_a)*Prob_talla<<endl;
+  report << elem_prod(Ntar,Sel_a)*Prob_talla<<endl;
+  report << elem_prod(N0,Sel_a)*Prob_talla<<endl;
+  report << "Selectivity_and_maturity_at_length" << endl;
+  report << Sel<<endl;
+  report << msex<<endl;
+  report << "Model parameters " << endl;
+  report<<"F_L50_slope_a0_cv_Lr_Ftar"<<endl;
+  report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<exp(log_Ftar)<<endl;
+  report<<"F/Ftar_SPR_SPRtar"<<endl;
+  report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<" "<<SPRtar<<endl;
+  report << "Log-likelihood_components" << endl;
   report << "Proportions" << endl;
   report << likeval(1) << endl;
   report << "Lr" << endl;
@@ -361,13 +325,8 @@ REPORT_SECTION
   report << "Total" << endl;
   report << sum(likeval) << endl;
 
-
-
-  report <<" "<<endl;
-  report <<"Per-recruit Analysis"<<endl;
-  report <<" "<<endl;
-  report <<"F     Y/R     SSB/R"<<endl;
-  report <<" "<<endl;
+  report <<"Per_recruit_Analysis"<<endl;
+  report <<"F_Y/R_SSB/R"<<endl;
 
    Fref=0.0;
    while(Fref<=3*exp(log_Fcr)){
@@ -393,4 +352,3 @@ REPORT_SECTION
   Fref+=0.05;
   }
 
- 
