@@ -190,7 +190,8 @@ FUNCTION Pop_Dynamic
 // Selectivity at-length /////////
   Sel=1./(1+exp(-log(19)*(len_bins-exp(log_L50))/(exp(log_rango))));
 // Selectivity at-age
-  Sel_a=Prob_talla*Sel;
+//  Sel_a=Prob_talla*Sel;
+  Sel_a=1./(1+exp(-log(19)*(mu_edad-exp(log_L50))/(exp(log_rango))));;
 
 
 // Survival rate at-age /////////////////////
@@ -226,19 +227,33 @@ FUNCTION Pop_Dynamic
   prop_pred=pred_Ctot/sum(pred_Ctot);
 
 
- // SPR estimation and Ftarg////////////////////////////
+ // SPR estimation and Ftar////////////////////////////
   SPR=1/B0*(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
 
-  Ntar(1)=1.0;
-  Z=M+exp(log_Ftar)*Sel_a;
-  
-  for (int i=2;i<=nages;i++){
-  Ntar(i)=Ntar(i-1)*exp(-Z(i-1));
-  }
-  Ntar(nages)=Ntar(nages)/(1-exp(-Z(nages)));
+     while(Fref<=3*exp(log_Fcr)){
 
-  // Per-recruit biomass and yield /////////////////////////
-  SPRtar=1/B0*(alfa*sum(elem_prod(elem_prod(Ntar,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
+    F=Fref*Sel_a;
+    Z=F+M;
+    S=exp(-1.*Z);
+ 
+    N(1)=1.0;
+      for (int i=2;i<=nages;i++){
+    N(i)=N(i-1)*exp(-Z(i-1));
+    }
+
+  N(nages)=N(nages)/(1-exp(-Z(nages)));
+
+  BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  
+  diff=BPR/B0-ratio;
+  
+  if(diff>0){
+    Ftar=0.5*(2*Fref+0.05);
+  }
+
+  Fref+=0.05;
+
+ }}
 
 
 FUNCTION Log_likelihood
@@ -258,14 +273,8 @@ FUNCTION Log_likelihood
   likeval(6)=0.5*square((log_rango-logslopeini)/cv99);
   likeval(7)=0.5*square((log_Fcr-logFcrini)/cv100);
 
-  if(last_phase()){
-
-  likeval(8)=1000*square((log(SPRtar)-log(ratio)));}
-  
-
   f=sum(likeval);
 
- 
 
 
 REPORT_SECTION
