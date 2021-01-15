@@ -315,7 +315,7 @@ REPORT_SECTION
   report<<"F_L50_slope_a0_cv_Lr_Ftar"<<endl;
   report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<exp(log_Ftar)<<endl;
   report<<"F/Ftar_SPR_SPRtar"<<endl;
-  report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<" "<<SPRtar<<endl;
+  report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<" "<<ratio<<endl;
   report << "Log-likelihood_components" << endl;
   report << "Proportions" << endl;
   report << likeval(1) << endl;
