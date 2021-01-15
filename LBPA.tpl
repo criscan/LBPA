@@ -249,6 +249,7 @@ FUNCTION Pop_Dynamic
   
   if(diff>0){
     Ftar=0.5*(2*Fref+0.05);
+    Ntar=N;
   }
 
   Fref+=0.05;
