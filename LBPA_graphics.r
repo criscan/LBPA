@@ -72,5 +72,9 @@ plot(BinLen,S1, ylab="Frequency", xlab="Length", type="l", lwd=3,  xlim = c(min(
 lines(BinLen,S2, ylab="Frequency", xlab="Length", lwd=3, col="green", xlim = c(min(BinLen),1.1*max(BinLen)))
 legend(x = "topright",legend=c("Selectivity","Maturity"), bty = "n", col=c(1,3), lwd=3)
 
-
+tabla <- matrix(ncol=1, round(c(data$F_L50_slope_a0_cv_Lr_Ftar,Fcr_est/Ftar,SPR_est),2))
+rownames(tabla) <- c("F curr", "L50", "Slope", "a0", "cv", "Lr", "F Target","F curr/F Target","SPR")
+colnames(tabla) <- c("Value")
+outcomes<-as.table(tabla)
+outcomes
 
