@@ -77,6 +77,7 @@ PARAMETER_SECTION
  vector N0(1,nages)
  vector Ntar(1,nages)
  vector N(1,nages)
+ vector Npr(1,nages)
  vector Sel_a(1,nages)
  vector Sel(1,nlength)
  vector F(1,nages)
@@ -230,20 +231,23 @@ FUNCTION Pop_Dynamic
  // SPR estimation and Ftar////////////////////////////
   SPR=1/B0*(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
 
-     while(Fref<=3*exp(log_Fcr)){
+ if(last_phase()){
+
+   Fref=0.0;
+   while(Fref<=3*exp(log_Fcr)){
 
     F=Fref*Sel_a;
     Z=F+M;
     S=exp(-1.*Z);
  
-    N(1)=1.0;
+    Npr(1)=1.0;
       for (int i=2;i<=nages;i++){
-    N(i)=N(i-1)*exp(-Z(i-1));
+    Npr(i)=Npr(i-1)*exp(-Z(i-1));
     }
 
-  N(nages)=N(nages)/(1-exp(-Z(nages)));
+  Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
 
-  BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
   
   diff=BPR/B0-ratio;
   
