@@ -49,9 +49,8 @@ DATA_SECTION
 
   init_number ratio
   init_number h
-
-
   init_number nm // sample size
+
 
 INITIALIZATION_SECTION
 
@@ -61,7 +60,6 @@ INITIALIZATION_SECTION
   log_alfa   logs1ini
   log_beta   logs2ini
   log_Lo     logLoini
-  log_Ftar   -0.5
 
 PARAMETER_SECTION
 
@@ -71,7 +69,6 @@ PARAMETER_SECTION
  init_number log_alfa(f5)
  init_number log_beta(f6)
  init_number log_Lo(f7)
- init_number log_Ftar(5)
 
 
  vector N0(1,nages)
@@ -106,9 +103,12 @@ PARAMETER_SECTION
  number Fref
  number YPR
  number BPR
+ number Ftar
+ number YPR_curr
+ number YPR_tar
  
  
- matrix Prob_talla(1,nages,1,nlength) 
+matrix Prob_talla(1,nages,1,nlength) 
  matrix FrecL(1,nages,1,nlength)
 
  number alfa
@@ -116,6 +116,8 @@ PARAMETER_SECTION
  number dts
  number B0
  number slope
+ number diff
+
  
 
  objective_function_value f
@@ -190,11 +192,13 @@ FUNCTION Pop_Dynamic
 
 // Selectivity at-length /////////
   Sel=1./(1+exp(-log(19)*(len_bins-exp(log_L50))/(exp(log_rango))));
+
 // Selectivity at-age
 //  Sel_a=Prob_talla*Sel;
   Sel_a=1./(1+exp(-log(19)*(mu_edad-exp(log_L50))/(exp(log_rango))));;
 
-
+ 
+ 
 // Survival rate at-age /////////////////////
   F=exp(log_Fcr)*Sel_a;
   Z=F+M;
@@ -221,6 +225,7 @@ FUNCTION Pop_Dynamic
   pred_Ctot_a=elem_prod(elem_div(F,Z),elem_prod(1.-S,N));
   pred_Ctot=pred_Ctot_a*Prob_talla;
 
+
  // Proportions ////////////////////////////
   for (int j=1;j<=nrep;j++){
   prop_obs(j)=LF_data(j)/sum(LF_data(j));
@@ -230,6 +235,8 @@ FUNCTION Pop_Dynamic
 
  // SPR estimation and Ftar////////////////////////////
   SPR=1/B0*(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
+  YPR_curr=(alfa*SPR/(beta+SPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
+
 
  if(last_phase()){
 
@@ -253,12 +260,17 @@ FUNCTION Pop_Dynamic
   
   if(diff>0){
     Ftar=0.5*(2*Fref+0.05);
-    Ntar=N;
+    Ntar=Npr;
   }
 
   Fref+=0.05;
 
  }}
+    F=Ftar*Sel_a;
+    Z=F+M;
+    S=exp(-1.*Z);
+  YPR_tar=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
+
 
 
 FUNCTION Log_likelihood
@@ -280,6 +292,7 @@ FUNCTION Log_likelihood
 
   f=sum(likeval);
 
+ 
 
 
 REPORT_SECTION
@@ -316,11 +329,16 @@ REPORT_SECTION
   report << "Selectivity_and_maturity_at_length" << endl;
   report << Sel<<endl;
   report << msex<<endl;
-  report << "Model parameters " << endl;
+  report << "Model_parameters " << endl;
   report<<"F_L50_slope_a0_cv_Lr_Ftar"<<endl;
-  report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<exp(log_Ftar)<<endl;
+  report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<Ftar<<endl;
   report<<"F/Ftar_SPR_SPRtar"<<endl;
-  report<<exp(log_Fcr)/exp(log_Ftar)<<" "<<SPR<<" "<<ratio<<endl;
+  report<<exp(log_Fcr)/Ftar<<" "<<SPR<<" "<<ratio<<endl;
+  report<<"YPRcurr_YPRtar"<<endl;
+  report<<YPR_curr<<" "<<YPR_tar<<endl;
+
+
+  report << " " << endl;
   report << "Log-likelihood_components" << endl;
   report << "Proportions" << endl;
   report << likeval(1) << endl;
@@ -338,7 +356,7 @@ REPORT_SECTION
   report << likeval(7) << endl;
   report << "Total" << endl;
   report << sum(likeval) << endl;
-
+  report << " " << endl;
   report <<"Per_recruit_Analysis"<<endl;
   report <<"F_Y/R_SSB/R"<<endl;
 
@@ -355,8 +373,6 @@ REPORT_SECTION
     }
 
   N(nages)=N(nages)/(1-exp(-Z(nages)));
-
-
 
   BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
   YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));
