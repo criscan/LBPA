@@ -106,6 +106,7 @@ PARAMETER_SECTION
  number Ftar
  number YPR_curr
  number YPR_tar
+ number BPR_curr
  
  
 matrix Prob_talla(1,nages,1,nlength) 
@@ -236,7 +237,7 @@ FUNCTION Pop_Dynamic
  // SPR estimation and Ftar////////////////////////////
   SPR=1/B0*(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
   YPR_curr=(alfa*SPR/(beta+SPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
-
+  BPR_curr=SPR*B0;
 
  if(last_phase()){
 
@@ -295,70 +296,109 @@ FUNCTION Log_likelihood
  
 
 
+
+
 REPORT_SECTION
+
+  report << "Length-based Pseudo-cohort Analysis" << endl;
+  report << "***********************************" << endl;
+  report << "Cristian M.Canales, Andre E.Punt, Mauricio Mardones" << endl;
+  report << "https://doi.org/10.1016/j.fishres.2020.105810" << endl;
+  report << "***********************************" << endl;
+  report << " " << endl;
+  report << " " << endl;
+
 
   for (int i=1;i<=nages;i++){
     FrecL(i)=Prob_talla(i)*pred_Ctot_a(i);
   }
 
-  report << "Length_bins" << endl;
+  report << "Length bins" << endl;
   report <<  len_bins << endl;
-  report << "Observed_frequencies" << endl;
+  report << "Observed frequencies (As many rows as samples are considered)" << endl;
+  report << "******************************************************************" << endl;
   report <<  prop_obs << endl;
-  report << "Predicted_frequency" << endl;
+  report << " " << endl;
+  report << "Predicted frequency (LBPA Model fitted to all data)" << endl;
+  report << "******************************************************************" << endl;
   report <<  prop_pred << endl;
-  report << "Catch_length_frequency (columns) by age groups (rows)" << endl;
+  report << " " << endl;
+  report << "Catch length frequency (columns) by age groups (rows)" << endl;
+  report << "******************************************************************" << endl;
   report <<  FrecL  << endl;
-  report << "Probability_of_length (columns) at-age (rows)" << endl;
+  report << " " << endl;
+  report << "Probability of length (columns) at-age (rows)" << endl;
+  report << "******************************************************************" << endl;
   report <<  Prob_talla  << endl;
-  report << "Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity " << endl;
-  
+  report << " " << endl;
+
+  report << "******************************************************************" << endl;
+  report << "Age Length  s.e  N   Catch   Selectivity   F    Weight   Maturity " << endl;
+  report << "******************************************************************" << endl;
   for (int j=1;j<=nages;j++){ // l
   report << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
   }
+  report << "******************************************************************" << endl;
+  report << " " << endl;
 
     for (int i=1;i<=nages;i++){
     if(mu_edad(i)>=biolpar(1)*2/3){
     Ps(i)=1;
     }};
   
-  report << "Length_frequency_of_exploitable_population_current_target_unfished" << endl;
+  report << " " << endl;
+  report << "Length frequency of exploitable population current target unfished" << endl;
+  report << "******************************************************************" << endl;
   report << elem_prod(N,Sel_a)*Prob_talla<<endl;
   report << elem_prod(Ntar,Sel_a)*Prob_talla<<endl;
   report << elem_prod(N0,Sel_a)*Prob_talla<<endl;
-  report << "Selectivity_and_maturity_at_length" << endl;
+  report << " " << endl;
+  report << "Selectivity and maturity at-length" << endl;
+  report << "******************************************************************" << endl;
   report << Sel<<endl;
   report << msex<<endl;
-  report << "Model_parameters " << endl;
-  report<<"F_L50_slope_a0_cv_Lr_Ftar"<<endl;
-  report<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<Ftar<<endl;
-  report<<"F/Ftar_SPR_SPRtar"<<endl;
-  report<<exp(log_Fcr)/Ftar<<" "<<SPR<<" "<<ratio<<endl;
-  report<<"YPRcurr_YPRtar"<<endl;
-  report<<YPR_curr<<" "<<YPR_tar<<endl;
-
-
   report << " " << endl;
+  report << "******************************************************************" << endl;
+  report << "Estimated model parameters " << endl;
+  report << "******************************************************************" << endl;
+  report<<"Fishing mortality (F)                 :"<<" "<<exp(log_Fcr)<<endl;
+  report<<"Selectivity length at 50% (L50)       :"<<" "<<exp(log_L50)<<endl;
+  report<<"Selectivity slope (d)                 :"<<" "<<exp(log_rango)<<endl;
+  report<<"Invariant std deviation in length (a0):"<<" "<<exp(log_alfa)<<endl;
+  report<<"Coeff of variation length at-age (cv) :"<<" "<<exp(log_beta)<<endl;
+  report<<"Size of recruits (Lr)                 :"<<" "<<exp(log_Lo)<<endl;
+  report << " " << endl;
+  report << "******************************************************************" << endl;
+  report << "Derivates quantities  " << endl;
+  report << "******************************************************************" << endl;
+  report<<"Virginal biomass per-recruit (BPR0)   :"<<" "<<B0<<endl;
+  report<<"Current BPR                           :"<<" "<<BPR_curr<<endl;
+  report<<"Target BPR                            :"<<" "<<ratio*B0<<endl;
+  report<<"Current spawning potential ratio (SPR):"<<" "<<SPR<<endl;
+  report<<"Target SPR (SPRtar)                   :"<<" "<<ratio<<endl;
+  report<<"Target fishing mortality (Ftar)       :"<<" "<<Ftar<<endl;
+  report<<"Overfishing index (F/Ftar)            :"<<" "<<exp(log_Fcr)/Ftar<<endl;
+  report<<"Current yield per-recruit (YPRcur)    :"<<" "<<YPR_curr<<endl;
+  report<<"Target  yield per-recruit (YPRtar)    :"<<" "<<YPR_tar<<endl;
+  report<<"Steepness (h)                         :"<<" "<<h<<endl;
+  report << " " << endl;
+  report << "******************************************************************" << endl;
   report << "Log-likelihood_components" << endl;
-  report << "Proportions" << endl;
-  report << likeval(1) << endl;
-  report << "Lr" << endl;
-  report << likeval(2) << endl;
-  report << "a0" << endl;
-  report << likeval(3) << endl;
-  report << "cv" << endl;
-  report << likeval(4) << endl;
-  report << "L50" << endl;
-  report << likeval(5) << endl;
-  report << "slope" << endl;
-  report << likeval(6) << endl;
-  report << "F" << endl;
-  report << likeval(7) << endl;
-  report << "Total" << endl;
-  report << sum(likeval) << endl;
+  report << "******************************************************************" << endl;
+  report << "Length frequencies proportions      :" <<" "<< likeval(1) << endl;
+  report << "Lr                                  :" <<" "<< likeval(2) << endl;
+  report << "a0                                  :" <<" "<< likeval(3) << endl;
+  report << "cv                                  :" <<" "<< likeval(4) << endl;
+  report << "L50                                 :" <<" "<< likeval(5) << endl;
+  report << "d                                   :" <<" "<< likeval(6) << endl;
+  report << "Initial F                           :" <<" "<< likeval(7) << endl;
+  report << "Total                               :" <<" "<< sum(likeval) << endl;
   report << " " << endl;
+  report << " " << endl;
+  report << "******************************************************************" << endl;
   report <<"Per_recruit_Analysis"<<endl;
-  report <<"F_Y/R_SSB/R"<<endl;
+  report << "******************************************************************" << endl;
+  report <<"F   Y/R   B/R"<<endl;
 
    Fref=0.0;
    while(Fref<=3*exp(log_Fcr)){
@@ -381,4 +421,93 @@ REPORT_SECTION
 
   Fref+=0.05;
   }
+
+
+ ofstream print_R("For_R.rep");
+
+  for (int i=1;i<=nages;i++){
+    FrecL(i)=Prob_talla(i)*pred_Ctot_a(i);
+  }
+
+  print_R << "Length_bins" << endl;
+  print_R <<  len_bins << endl;
+  print_R << "Observed_frequencies" << endl;
+  print_R <<  prop_obs << endl;
+  print_R << "Predicted_frequency" << endl;
+  print_R <<  prop_pred << endl;
+  print_R << "Catch_length_frequency (columns) by age groups (rows)" << endl;
+  print_R <<  FrecL  << endl;
+  print_R << "Probability_of_length (columns) at-age (rows)" << endl;
+  print_R <<  Prob_talla  << endl;
+  print_R << "Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity " << endl;
+  
+  for (int j=1;j<=nages;j++){ // l
+  print_R << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
+  }
+
+    for (int i=1;i<=nages;i++){
+    if(mu_edad(i)>=biolpar(1)*2/3){
+    Ps(i)=1;
+    }};
+  
+  print_R << "Length_frequency_of_exploitable_population_current_target_unfished" << endl;
+  print_R << elem_prod(N,Sel_a)*Prob_talla<<endl;
+  print_R << elem_prod(Ntar,Sel_a)*Prob_talla<<endl;
+  print_R << elem_prod(N0,Sel_a)*Prob_talla<<endl;
+  print_R << "Selectivity_and_maturity_at_length" << endl;
+  print_R << Sel<<endl;
+  print_R << msex<<endl;
+  print_R << "Model_parameters " << endl;
+  print_R<<"F_L50_slope_a0_cv_Lr_Ftar"<<endl;
+  print_R<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<Ftar<<endl;
+  print_R<<"F/Ftar_SPR_SPRtar"<<endl;
+  print_R<<exp(log_Fcr)/Ftar<<" "<<SPR<<" "<<ratio<<endl;
+  print_R<<"YPRcurr_YPRtar"<<endl;
+  print_R<<YPR_curr<<" "<<YPR_tar<<endl;
+
+  print_R << " " << endl;
+  print_R << "Log-likelihood_components" << endl;
+  print_R << "Proportions" << endl;
+  print_R << likeval(1) << endl;
+  print_R << "Lr" << endl;
+  print_R << likeval(2) << endl;
+  print_R << "a0" << endl;
+  print_R << likeval(3) << endl;
+  print_R << "cv" << endl;
+  print_R << likeval(4) << endl;
+  print_R << "L50" << endl;
+  print_R << likeval(5) << endl;
+  print_R << "slope" << endl;
+  print_R << likeval(6) << endl;
+  print_R << "F" << endl;
+  print_R << likeval(7) << endl;
+  print_R << "Total" << endl;
+  print_R << sum(likeval) << endl;
+  print_R << " " << endl;
+  print_R <<"Per_recruit_Analysis"<<endl;
+  print_R <<"F_Y/R_SSB/R"<<endl;
+
+   Fref=0.0;
+   while(Fref<=3*exp(log_Fcr)){
+   
+    F=Fref*Sel_a;
+    Z=F+M;
+    S=exp(-1.*Z);
+ 
+    N(1)=1.0;
+      for (int i=2;i<=nages;i++){
+    N(i)=N(i-1)*exp(-Z(i-1));
+    }
+
+  N(nages)=N(nages)/(1-exp(-Z(nages)));
+
+  BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));
+
+  print_R <<Fref<<" "<<YPR<<" "<<BPR<<endl;
+
+  Fref+=0.05;
+  }
+
+
 
