@@ -20,7 +20,7 @@ When run the model, be keep to have into same directory/folder next files
 
 *.tpl file must be compiled in ADMB for producing the executable file (LBPA.exe). Alternatively you will find the executable file for windows 64 bits with other extention (.mexe). Be keep to rename the extension file .mexe by .exe. Depending on your OS, you can compile the source code (.tpl) as be necessary
 
-After running the model (double click on lbpa.exe) you will find several files, being the most interest: lbpa.rep (results report), lbpa.par, lbpa.std and lbpa.cor.  
+After running the model (double click on lbpa.exe) you will find several files, being the most interesting: lbpa.rep (results report), lbpa.par, lbpa.std and lbpa.cor.  
 
 Data file (lbpa.dat) is explained by itself. There are several comments related to parameters and data inside.
 
