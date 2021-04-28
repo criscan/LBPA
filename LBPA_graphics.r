@@ -2,7 +2,7 @@ rm(list=ls(all=TRUE)) # erasure all objects
 setwd('C:/..............') # set current directory
 system('./LBPA')  # for model running
 source('C:/................/read.admb.R')
-data <-read.rep('LBPA.rep')
+data <-read.rep('For_R.rep')
 
 nages<-10 #this depends on the specie
 
