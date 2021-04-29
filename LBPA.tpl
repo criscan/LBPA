@@ -107,6 +107,7 @@ PARAMETER_SECTION
  number YPR_curr
  number YPR_tar
  number BPR_curr
+ number BPR_tar
  
  
 matrix Prob_talla(1,nages,1,nlength) 
@@ -240,9 +241,10 @@ FUNCTION Pop_Dynamic
   BPR_curr=SPR*B0;
 
  if(last_phase()){
-
+ 
+   diff=1-ratio;
    Fref=0.0;
-   while(Fref<=3*exp(log_Fcr)){
+   while(diff>0){
 
     F=Fref*Sel_a;
     Z=F+M;
@@ -256,28 +258,18 @@ FUNCTION Pop_Dynamic
   Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
 
   BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,Npr))*Prob_talla,wmed));////new
   
   diff=BPR/B0-ratio;
-  
-  if(diff>0){
-    Ftar=0.5*(2*Fref+0.05);
-    Ntar=Npr;
-  }
 
-  Fref+=0.05;
+  Fref+=0.025;
 
  }}
-    F=Ftar*Sel_a;
-    Z=F+M;
-    S=exp(-1.*Z);
-    Npr(1)=1.0;
-      for (int i=2;i<=nages;i++){
-    Npr(i)=Npr(i-1)*exp(-Z(i-1));}
 
-
-    BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
-    YPR_tar=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,Npr))*Prob_talla,wmed));////new
-
+   BPR_tar=ratio*B0;
+   YPR_tar=YPR;
+   Ftar=Fref-0.025;
+   
 
 
 FUNCTION Log_likelihood
@@ -379,7 +371,7 @@ REPORT_SECTION
   report << "******************************************************************" << endl;
   report<<"Virginal biomass per-recruit (BPR0)   :"<<" "<<B0<<endl;
   report<<"Current BPR                           :"<<" "<<BPR_curr<<endl;
-  report<<"Target BPR                            :"<<" "<<ratio*B0<<endl;
+  report<<"Target BPR                            :"<<" "<<BPR_tar<<endl;
   report<<"Current spawning potential ratio (SPR):"<<" "<<SPR<<endl;
   report<<"Target SPR (SPRtar)                   :"<<" "<<ratio<<endl;
   report<<"Target fishing mortality (Ftar)       :"<<" "<<Ftar<<endl;
@@ -425,7 +417,7 @@ REPORT_SECTION
 
   report <<Fref<<" "<<YPR<<" "<<BPR<<endl;
 
-  Fref+=0.05;
+  Fref+=0.025;
   }
 
 
@@ -512,7 +504,7 @@ REPORT_SECTION
 
   print_R <<Fref<<" "<<YPR<<" "<<BPR<<endl;
 
-  Fref+=0.05;
+  Fref+=0.025;
   }
 
 
