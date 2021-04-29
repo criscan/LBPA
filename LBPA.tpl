@@ -270,7 +270,13 @@ FUNCTION Pop_Dynamic
     F=Ftar*Sel_a;
     Z=F+M;
     S=exp(-1.*Z);
-  YPR_tar=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
+    Npr(1)=1.0;
+      for (int i=2;i<=nages;i++){
+    Npr(i)=Npr(i-1)*exp(-Z(i-1));}
+
+
+    BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+    YPR_tar=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,Npr))*Prob_talla,wmed));////new
 
 
 
