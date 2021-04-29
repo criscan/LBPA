@@ -75,6 +75,7 @@ PARAMETER_SECTION
  vector Ntar(1,nages)
  vector N(1,nages)
  vector Npr(1,nages)
+ vector Ncur(1,nages)
  vector Sel_a(1,nages)
  vector Sel(1,nlength)
  vector F(1,nages)
@@ -239,6 +240,7 @@ FUNCTION Pop_Dynamic
   SPR=1/B0*(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
   YPR_curr=(alfa*SPR/(beta+SPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
   BPR_curr=SPR*B0;
+  Ncur=N;
 
  if(last_phase()){
  
@@ -269,6 +271,7 @@ FUNCTION Pop_Dynamic
    BPR_tar=ratio*B0;
    YPR_tar=YPR;
    Ftar=Fref-0.025;
+   Ntar=Npr;
    
 
 
@@ -347,7 +350,7 @@ REPORT_SECTION
   report << " " << endl;
   report << "Length frequency of exploitable population current target unfished" << endl;
   report << "******************************************************************" << endl;
-  report << elem_prod(N,Sel_a)*Prob_talla<<endl;
+  report << elem_prod(Ncur,Sel_a)*Prob_talla<<endl;
   report << elem_prod(Ntar,Sel_a)*Prob_talla<<endl;
   report << elem_prod(N0,Sel_a)*Prob_talla<<endl;
   report << " " << endl;
