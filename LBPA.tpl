@@ -397,32 +397,7 @@ REPORT_SECTION
   report << " " << endl;
   report << " " << endl;
   report << "******************************************************************" << endl;
-  report <<"Per_recruit_Analysis"<<endl;
-  report << "******************************************************************" << endl;
-  report <<"F   Y/R   B/R"<<endl;
-
-   Fref=0.0;
-   while(Fref<=3*exp(log_Fcr)){
-   
-    F=Fref*Sel_a;
-    Z=F+M;
-    S=exp(-1.*Z);
- 
-    N(1)=1.0;
-      for (int i=2;i<=nages;i++){
-    N(i)=N(i-1)*exp(-Z(i-1));
-    }
-
-  N(nages)=N(nages)/(1-exp(-Z(nages)));
-
-  BPR=alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
-  YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));
-
-  report <<Fref<<" "<<YPR<<" "<<BPR<<endl;
-
-  Fref+=0.025;
-  }
-
+  
 
  ofstream print_R("For_R.rep");
 
