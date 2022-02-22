@@ -25,10 +25,10 @@ DATA_SECTION
   init_number cv3 // cv
 
  // Phases
-  init_int  f3 // L50
-  init_int  f4 // slope
-  init_int  f2 // F
-  init_int  f7 // Lo
+  init_int  f1 // L50
+  init_int  f2 // slope
+  init_int  f3 // F
+  init_int  f4 // Lo
   init_int  f5 // a0
   init_int  f6 // cv
 
@@ -63,12 +63,12 @@ INITIALIZATION_SECTION
 
 PARAMETER_SECTION
 
- init_number log_Fcr(f2) 
- init_number log_L50(f3) 
- init_number log_rango(f4) 
- init_number log_alfa(f5)
- init_number log_beta(f6)
- init_number log_Lo(f7)
+ init_number log_Fcr(f1) 
+ init_number log_L50(f2) 
+ init_number log_rango(f3) 
+ init_number log_alfa(f4)
+ init_number log_beta(f5)
+ init_number log_Lo(f6)
 
 
  vector N0(1,nages)
