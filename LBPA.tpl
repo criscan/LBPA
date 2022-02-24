@@ -17,12 +17,12 @@ DATA_SECTION
 
 
  // Coef of variation prior
-  init_number cv4 // L50
-  init_number cv99 // slope
-  init_number cv100 // F
-  init_number cv1 // Lr
-  init_number cv2 // ao
-  init_number cv3 // cv
+  init_number cv1 // L50
+  init_number cv2 // slope
+  init_number cv3 // F
+  init_number cv4 // Lr
+  init_number cv5 // ao
+  init_number cv6 // cv
 
  // Phases
   init_int  f1 // L50
@@ -54,21 +54,21 @@ DATA_SECTION
 
 INITIALIZATION_SECTION
 
-  log_Fcr    logFcrini
   log_L50    logL50ini
   log_rango  logslopeini
+  log_Fcr    logFcrini
+  log_Lo     logLoini
   log_alfa   logs1ini
   log_beta   logs2ini
-  log_Lo     logLoini
 
 PARAMETER_SECTION
 
- init_number log_Fcr(f1) 
- init_number log_L50(f2) 
- init_number log_rango(f3) 
- init_number log_alfa(f4)
- init_number log_beta(f5)
- init_number log_Lo(f6)
+ init_number log_L50(f1) 
+ init_number log_rango(f2) 
+ init_number log_Fcr(f3) 
+ init_number log_Lo(f4)
+ init_number log_alfa(f5)
+ init_number log_beta(f6)
 
 
  vector N0(1,nages)
@@ -285,12 +285,12 @@ FUNCTION Log_likelihood
 
 
   likeval(1)=s;// LF_data
-  likeval(2)=0.5*square((log_Lo-logLoini)/cv1);
-  likeval(3)=0.5*square((log_alfa-logs1ini)/cv2);
-  likeval(4)=0.5*square((log_beta-logs2ini)/cv3);
-  likeval(5)=0.5*square((log_L50-logL50ini)/cv4);
-  likeval(6)=0.5*square((log_rango-logslopeini)/cv99);
-  likeval(7)=0.5*square((log_Fcr-logFcrini)/cv100);
+  likeval(5)=0.5*square((log_L50-logL50ini)/cv1);
+  likeval(6)=0.5*square((log_rango-logslopeini)/cv2);
+  likeval(7)=0.5*square((log_Fcr-logFcrini)/cv3);
+  likeval(2)=0.5*square((log_Lo-logLoini)/cv4);
+  likeval(3)=0.5*square((log_alfa-logs1ini)/cv5);
+  likeval(4)=0.5*square((log_beta-logs2ini)/cv6);
 
   f=sum(likeval);
 
