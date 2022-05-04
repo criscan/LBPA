@@ -69,6 +69,7 @@ PARAMETER_SECTION
  init_number log_Lo(f4)
  init_number log_alfa(f5)
  init_number log_beta(f6)
+ init_number log_Ftar(f3) // Ftar was now included as parameter to be estimated
 
 
  vector N0(1,nages)
@@ -99,7 +100,9 @@ PARAMETER_SECTION
  number Lo
  number M
  number s
- number SPR
+ sdreport_number SPR
+ sdreport_number Fcur
+ number Fratio
  number SPRtar
  number Fref
  number YPR
@@ -111,7 +114,7 @@ PARAMETER_SECTION
  number BPR_tar
  
  
-matrix Prob_talla(1,nages,1,nlength) 
+ matrix Prob_talla(1,nages,1,nlength) 
  matrix FrecL(1,nages,1,nlength)
 
  number alfa
@@ -237,18 +240,18 @@ FUNCTION Pop_Dynamic
 
 
  // SPR estimation and Ftar////////////////////////////
-  SPR=1/B0*(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
+  SPR=(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
   YPR_curr=(alfa*SPR/(beta+SPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
+  SPR=SPR/B0;
   BPR_curr=SPR*B0;
   Ncur=N;
+  
+  Fcur=exp(log_Fcr);
+  Ftar=exp(log_Ftar);
 
- if(last_phase()){
- 
-   diff=1-ratio;
-   Fref=0.0;
-   while(diff>0){
+  if(last_phase()){
 
-    F=Fref*Sel_a;
+    F=Ftar*Sel_a;
     Z=F+M;
     S=exp(-1.*Z);
  
@@ -264,14 +267,14 @@ FUNCTION Pop_Dynamic
   
   diff=BPR/B0-ratio;
 
-  Fref+=0.025;
-
- }}
+  }
 
    BPR_tar=ratio*B0;
    YPR_tar=YPR;
-   Ftar=Fref-0.025;
    Ntar=Npr;
+
+   Fratio=exp(log_Fcr)/Ftar;
+   
    
 
 
@@ -292,7 +295,8 @@ FUNCTION Log_likelihood
   likeval(3)=0.5*square((log_alfa-logs1ini)/cv5);
   likeval(4)=0.5*square((log_beta-logs2ini)/cv6);
 
-  f=sum(likeval);
+
+  f=sum(likeval)+square(diff);
 
  
 
@@ -378,7 +382,7 @@ REPORT_SECTION
   report<<"Current spawning potential ratio (SPR):"<<" "<<SPR<<endl;
   report<<"Target SPR (SPRtar)                   :"<<" "<<ratio<<endl;
   report<<"Target fishing mortality (Ftar)       :"<<" "<<Ftar<<endl;
-  report<<"Overfishing index (F/Ftar)            :"<<" "<<exp(log_Fcr)/Ftar<<endl;
+  report<<"Overfishing index (F/Ftar)            :"<<" "<<Fratio<<endl;
   report<<"Current yield per-recruit (YPRcur)    :"<<" "<<YPR_curr<<endl;
   report<<"Target  yield per-recruit (YPRtar)    :"<<" "<<YPR_tar<<endl;
   report<<"Steepness (h)                         :"<<" "<<h<<endl;
@@ -460,6 +464,7 @@ REPORT_SECTION
   print_R << "Total" << endl;
   print_R << sum(likeval) << endl;
   print_R << " " << endl;
+  print_R << " " << endl;
   print_R <<"Per_recruit_Analysis"<<endl;
   print_R <<"F_Y/R_SSB/R"<<endl;
 
@@ -484,6 +489,8 @@ REPORT_SECTION
 
   Fref+=0.025;
   }
+
+
 
 
 
