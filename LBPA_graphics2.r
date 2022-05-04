@@ -1,5 +1,5 @@
 rm(list=ls(all=TRUE)) # erasure all objects
-system('./LBPA -ind lbpa.dat')  # for model running
+system('./LBPA -ind lbpa_centolla.dat')  # for model running
 
 source('read.admb.R')
 source('read.admbFit.R')
@@ -130,7 +130,7 @@ sd=std[c(totPar-1, totPar)]
 
 
 p_low=1-pnorm(est[c(totPar-1)],0.4,std[c(totPar-1)])
-p_high=pnorm(est[c(totPar)],1,std[c(totPar)])
+p_high=pnorm(est[c(totPar)],est[totPar],std[c(totPar)])
 
 
 set.seed(1)
@@ -141,14 +141,14 @@ x=T[,1]
 y=T[,2]
 z <- kde2d(x, y, n = 100)
 
-plot(x,y, col='gray',pch = 19,xlab="SPR",ylab="F/Ftar",main="Uncertainty levels")
+plot(x,y, col='gray',pch = 19,xlab="SPR",ylab="F",main="Uncertainty levels")
      #xlim = c(0,max(x)),ylim=c(0,max(y)))
 contour(z, lwd = 1, add = TRUE, nlevels=5, col = "blue")
 lines(SPR_est,Fcr_est/Ftar, type="p", pch = 19, cex=2)
 
 #contour(z, lwd = 2, add = TRUE, nlevels=15, col = hcl.colors(10, "Spectral"))
 abline(v = 0.4,  col = "black",lty = 2)
-abline(h = 1.0, col = "black",lty = 2)
+abline(h = est[totPar], col = "black",lty = 2)
 
 
 # Curva probabilidad normal
@@ -164,9 +164,9 @@ abline(v = 0.4,  col = "black",lty = 2)
 
 eje=seq(0,2*U[2],by=0.01)
 d2=dnorm(eje,U[2],sd[2])
-plot(eje,d2/max(d2),type="l", ylab="Density", xlab="F/Ftar",main=paste("p(F>Ftar)=",round(p_high,3)))
+plot(eje,d2/max(d2),type="l", ylab="Density", xlab="F",main=paste("p(F>Ftar)=",round(p_high,3)))
 polygon(c(0, eje, U[2]), c(0, d2/max(d2), 0), col = c("cyan"))
-abline(v = 1,  col = "black",lty = 2)
+abline(v = est[totPar],  col = "black",lty = 2)
 
 #-----------------------------------------------
 #---------------------------------------------------------------------------------------------------------
