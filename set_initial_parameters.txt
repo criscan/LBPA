@@ -1,0 +1,15 @@
+Consider the following suggestions to set the initial model parameters
+(Lmed= mean size of individuals)
+
+# L50     slope       F      Lr         a0       cv
+0.9Lmed   0.1L50      0.5   0.75Lmed    0.0      0.1
+
+#coefficients of variation
+ 0.1       0.2       0.5     0.1      10.1       0.5
+
+#Estimation phases
+1           2         3       4       -4       4
+
+
+
+
