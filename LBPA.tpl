@@ -69,7 +69,6 @@ PARAMETER_SECTION
  init_number log_Lo(f4)
  init_number log_alfa(f5)
  init_number log_beta(f6)
- init_number log_Ftar(f3) // Ftar was now included as parameter to be estimated
 
 
  vector N0(1,nages)
@@ -123,7 +122,6 @@ PARAMETER_SECTION
  number B0
  number slope
  number diff
-
  
 
  objective_function_value f
@@ -239,43 +237,13 @@ FUNCTION Pop_Dynamic
   prop_pred=pred_Ctot/sum(pred_Ctot);
 
 
- // SPR estimation and Ftar////////////////////////////
+ // SPR estimation////////////////////////////
   SPR=(alfa*sum(elem_prod(elem_prod(N,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta);
   YPR_curr=(alfa*SPR/(beta+SPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
   SPR=SPR/B0;
   BPR_curr=SPR*B0;
   Ncur=N;
-  
   Fcur=exp(log_Fcr);
-  Ftar=exp(log_Ftar);
-
-  if(last_phase()){
-
-    F=Ftar*Sel_a;
-    Z=F+M;
-    S=exp(-1.*Z);
- 
-    Npr(1)=1.0;
-      for (int i=2;i<=nages;i++){
-    Npr(i)=Npr(i-1)*exp(-Z(i-1));
-    }
-
-  Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
-
-  BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
-  YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,Npr))*Prob_talla,wmed));////new
-  
-  diff=BPR/B0-ratio;
-
-  }
-
-   BPR_tar=ratio*B0;
-   YPR_tar=YPR;
-   Ntar=Npr;
-
-   Fratio=exp(log_Fcr)/Ftar;
-   
-   
 
 
 FUNCTION Log_likelihood
@@ -296,14 +264,43 @@ FUNCTION Log_likelihood
   likeval(4)=0.5*square((log_beta-logs2ini)/cv6);
 
 
-  f=sum(likeval)+square(diff);
-
- 
-
+  f=sum(likeval);
 
 
 
 REPORT_SECTION
+
+  Ftar=0.01;
+
+  diff=1;
+  while(diff>1e-5){
+
+    Ftar+=0.005;
+
+    F=Ftar*Sel_a;
+    Z=F+M;
+    S=exp(-1.*Z);
+ 
+    Npr(1)=1.0;
+      for (int i=2;i<=nages;i++){
+    Npr(i)=Npr(i-1)*exp(-Z(i-1));
+    }
+
+  Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
+
+  BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  
+  diff=square(BPR/B0-ratio);
+
+  }
+
+   BPR_tar=ratio*B0;
+   YPR_tar=YPR;
+   Ntar=Npr;
+
+   Fratio=exp(log_Fcr)/Ftar;
+
+
 
   report << "Length-based Pseudo-cohort Analysis" << endl;
   report << "***********************************" << endl;
@@ -489,8 +486,4 @@ REPORT_SECTION
 
   Fref+=0.025;
   }
-
-
-
-
 
