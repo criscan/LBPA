@@ -70,10 +70,10 @@ L3 <- (data$Length_frequency_of_exploitable_population_current_target_unfished[3
 
 plot(BinLen,L3, ylab="Frequency", xlab="Length", type="l", lwd=1, col="green", xlim = c(min(BinLen),1.05*max(BinLen)),
      main="Length frequencies")
-polygon(c(BinLen,BinLen[length(L3)]),c(L3,0),col = rgb(0.46, 0.93, 0.78, alpha = 0.5))
+polygon(c(BinLen[1], BinLen,BinLen[length(L3)]),c(0,L3,0),col = rgb(0.46, 0.93, 0.78, alpha = 0.5))
 
 lines(BinLen,L2)
-polygon(c(BinLen,BinLen[length(L2)]),c(L2,0), col = rgb(1, 0.27, 0, alpha = 0.8))
+polygon(c(BinLen[1], BinLen,BinLen[length(L3)]),c(0,L2,0), col = rgb(1, 0.27, 0, alpha = 0.8))
 
 lines(BinLen,L1,type="l", lwd=2)
 legend(x = "topright",
@@ -135,7 +135,7 @@ p_high=pnorm(est[c(totPar)],est[totPar],std[c(totPar)])
 
 set.seed(1)
 
-#Generamos la población de tamaño N=1000
+#Generamos la poblaciÃ³n de tamaÃ±o N=1000
 T = mvrnorm(1000,U, V)
 x=T[,1]
 y=T[,2]
