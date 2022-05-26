@@ -289,7 +289,7 @@ REPORT_SECTION
   Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
 
   BPR_tar=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
-  YPR_tar=(alfa*BPR/(beta+BPR_tar))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
+  YPR_tar=(alfa*BPR_tar/(beta+BPR_tar))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
   
   diff=square(BPR/B0-ratio);
 
