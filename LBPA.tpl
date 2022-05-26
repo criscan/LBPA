@@ -288,16 +288,14 @@ REPORT_SECTION
 
   Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
 
-  BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  BPR_tar=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+  YPR_tar=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
   
   diff=square(BPR/B0-ratio);
 
   }
 
-   BPR_tar=ratio*B0;
-   YPR_tar=YPR;
    Ntar=Npr;
-
    Fratio=exp(log_Fcr)/Ftar;
 
 
