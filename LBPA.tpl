@@ -270,33 +270,30 @@ FUNCTION Log_likelihood
 
 REPORT_SECTION
 
-  Ftar=0.01;
-
-  diff=1;
+  Ftar = 0.01;
+  diff = 1.;
   while(diff>1e-5){
 
-    Ftar+=0.005;
-
-    F=Ftar*Sel_a;
-    Z=F+M;
-    S=exp(-1.*Z);
+    Ftar += 0.005;
+    F     = Ftar*Sel_a;
+    Z     = F+M;
+    S     = exp(-1.*Z);
  
     Npr(1)=1.0;
-      for (int i=2;i<=nages;i++){
-    Npr(i)=Npr(i-1)*exp(-Z(i-1));
-    }
+    for (int i=2;i<=nages;i++)
+      Npr(i)=Npr(i-1)*exp(-Z(i-1));
 
-  Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
+    Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
 
-  BPR_tar=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
-  YPR_tar=(alfa*BPR_tar/(beta+BPR_tar))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
-  
-  diff=square(BPR/B0-ratio);
+    BPR_tar = alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+    YPR_tar = (alfa*BPR_tar/(beta+BPR_tar))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
+    diff    = square(BPR_tar/B0-ratio);
+    // diff    = square(BPR/B0-ratio);
 
   }
 
-   Ntar=Npr;
-   Fratio=exp(log_Fcr)/Ftar;
+  Ntar   = Npr;
+  Fratio = exp(log_Fcr)/Ftar;
 
 
 
@@ -308,9 +305,8 @@ REPORT_SECTION
   report << " " << endl;
   report << " " << endl;
 
-
   for (int i=1;i<=nages;i++){
-    FrecL(i)=Prob_talla(i)*pred_Ctot_a(i);
+    FrecL(i) = Prob_talla(i)*pred_Ctot_a(i);
   }
 
   report << "Length bins" << endl;
@@ -397,9 +393,7 @@ REPORT_SECTION
   report << " " << endl;
   report << "******************************************************************" << endl;
   
-
  ofstream print_R("For_R.rep");
-
   for (int i=1;i<=nages;i++){
     FrecL(i)=Prob_talla(i)*pred_Ctot_a(i);
   }
@@ -417,7 +411,7 @@ REPORT_SECTION
   print_R << "Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity " << endl;
   
   for (int j=1;j<=nages;j++){ // l
-  print_R << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
+    print_R << edades(j) <<" "<<mu_edad(j)<<" "<<sigma_edad(j)<<" "<<N(j)<<" "<<pred_Ctot_a(j)<<" "<<Sel_a(j)<<" "<<Sel_a(j)*exp(log_Fcr)<<" "<<Prob_talla(j)*wmed<<" "<<Prob_talla(j)*msex<<endl; 
   }
 
     for (int i=1;i<=nages;i++){
