@@ -155,7 +155,7 @@ FUNCTION Prob_length2age
  mu_edad(1)=exp(log_Lo);
  for (i=2;i<=nages;i++)
   {
-  mu_edad(i)=Linf*(1-exp(-k))+exp(-k)*mu_edad(i-1);
+    mu_edad(i)=Linf*(1-exp(-k))+exp(-k)*mu_edad(i-1);
   }
 
   sigma_edad=exp(log_alfa)+exp(log_beta)*mu_edad;
@@ -195,35 +195,33 @@ FUNCTION dvar_matrix ALK(dvar_vector& mu, dvar_vector& sig, dvector& x)
 FUNCTION Pop_Dynamic
 
 // Selectivity at-length /////////
-  Sel=1./(1+exp(-log(19)*(len_bins-exp(log_L50))/(exp(log_rango))));
+  Sel   = 1./(1+exp(-log(19)*(len_bins-exp(log_L50))/(exp(log_rango))));
 
 // Selectivity at-age
 //  Sel_a=Prob_talla*Sel;
-  Sel_a=1./(1+exp(-log(19)*(mu_edad-exp(log_L50))/(exp(log_rango))));;
+  Sel_a = 1./(1+exp(-log(19)*(mu_edad-exp(log_L50))/(exp(log_rango))));;
 
- 
- 
 // Survival rate at-age /////////////////////
-  F=exp(log_Fcr)*Sel_a;
-  Z=F+M;
-  S=exp(-1.*Z);
-
+  F = exp(log_Fcr)*Sel_a;
+  Z = F+M;
+  S = exp(-1.*Z);
 
  // Unfished biomass////////////////////////////
   N0(1)=1.0;
   for (int j=2;j<=nages;j++)
-  { N0(j)=N0(j-1)*exp(-1.*M);}
-    N0(nages)=N0(nages)/(1-exp(-1.*M));
+  { 
+    N0(j)=N0(j-1)*exp(-1.*M);
+  }
+  N0(nages)=N0(nages)/(1-exp(-1.*M));
   B0=sum(elem_prod((N0*exp(-dts*M))*Prob_talla,elem_prod(wmed,msex)));
 
   alfa=4*h/(5*h-1);
   beta=(1-h)/(5*h-1)*B0;
 
-
- // LF estimation ////////////////////////////
+   // LF estimation ////////////////////////////
   N(1)=1.0;
   for (int i=2;i<=nages;i++){
-  N(i)=N(i-1)*exp(-Z(i-1));
+    N(i)=N(i-1)*exp(-Z(i-1));
   }
   N(nages)=N(nages)/(1-exp(-Z(nages)));
   pred_Ctot_a=elem_prod(elem_div(F,Z),elem_prod(1.-S,N));
@@ -232,9 +230,9 @@ FUNCTION Pop_Dynamic
 
  // Proportions ////////////////////////////
   for (int j=1;j<=nrep;j++){
-  prop_obs(j)=LF_data(j)/sum(LF_data(j));
-  }
-  prop_pred=pred_Ctot/sum(pred_Ctot);
+    prop_obs(j)=LF_data(j)/sum(LF_data(j));
+    }
+    prop_pred=pred_Ctot/sum(pred_Ctot);
 
 
  // SPR estimation////////////////////////////
@@ -251,20 +249,18 @@ FUNCTION Log_likelihood
 
   s=0;
   for (int j=1;j<=nrep;j++){
-  s+=-nm*sum(pond(j)*elem_prod(prop_obs(j),log(prop_pred)));// LF_data
+    s+=-nm*sum(pond(j)*elem_prod(prop_obs(j),log(prop_pred)));// LF_data
   }
 
 
-  likeval(1)=s;// LF_data
-  likeval(5)=0.5*square((log_L50-logL50ini)/cv1);
-  likeval(6)=0.5*square((log_rango-logslopeini)/cv2);
-  likeval(7)=0.5*square((log_Fcr-logFcrini)/cv3);
-  likeval(2)=0.5*square((log_Lo-logLoini)/cv4);
-  likeval(3)=0.5*square((log_alfa-logs1ini)/cv5);
-  likeval(4)=0.5*square((log_beta-logs2ini)/cv6);
-
-
-  f=sum(likeval);
+  likeval(1) = s;// LF_data
+  likeval(5) = 0.5*square((log_L50-logL50ini)/cv1);
+  likeval(6) = 0.5*square((log_rango-logslopeini)/cv2);
+  likeval(7) = 0.5*square((log_Fcr-logFcrini)/cv3);
+  likeval(2) = 0.5*square((log_Lo-logLoini)/cv4);
+  likeval(3) = 0.5*square((log_alfa-logs1ini)/cv5);
+  likeval(4) = 0.5*square((log_beta-logs2ini)/cv6);
+  f          = sum(likeval);
 
 
 
