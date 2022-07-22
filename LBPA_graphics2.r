@@ -1,5 +1,5 @@
 rm(list=ls(all=TRUE)) # erasure all objects
-system('./LBPA -ind lbpa_centolla.dat')  # for model running
+system('./LBPA -ind lbpa.dat')  # for model running
 
 source('read.admb.R')
 source('read.admbFit.R')
