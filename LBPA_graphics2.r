@@ -26,7 +26,7 @@ results=data$F_L50_slope_a0_cv_Lr_Ftar
 
 #---------FIGURA 1-------------------------------------
 
-par(mfrow = c(2, 1))
+#par(mfrow = c(2, 1))
 
 # 1
 plot(BinLen,
@@ -58,7 +58,7 @@ lines(PredFre,PredFre, type="l", col="red", lwd=1)
 
 #---------FIGURA 2-------------------------------------
 
-par(mfrow = c(2, 2))
+#par(mfrow = c(2, 2))
 
 
 # 1
@@ -92,6 +92,22 @@ lines(BinLen,S2, lwd=3, col="green", xlim = c(min(BinLen),1.1*max(BinLen)))
 legend(x = "topright",legend=c("Selectivity","Maturity"), bty = "n", col=c(1,3), lwd=3)
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
+# 2b -------------------------------------------
+#par(mfrow = c(1, 1))
+
+plot(BinLen,
+     PredFre/max(PredFre),type="l",
+     ylab="Frequency",
+     xlab="Length",
+     ylim=c(0, 1),
+     main="Model fit",xlim = c(min(BinLen),1.05*max(BinLen)))
+
+
+for (i in 1:4) {
+  lines(BinLen, ObsFre[i,]/max(ObsFre[i,]), type="l",  cex=0.6, col="red", pch = 16)
+}
+lines(BinLen,PredFre/max(PredFre),type="l",lwd=2)
+     
 
 
 
@@ -115,7 +131,7 @@ abline(v = Ftar, col = "black",lty = 2)
 
 
 # -------------FIGURA CONTORNOS DE RIESGO LBPA -------------------------------
-par(mfrow = c(2, 2))
+#par(mfrow = c(2, 2))
 
 
 files=read.admbFit('LBPA')
