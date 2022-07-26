@@ -131,7 +131,7 @@ abline(v = Ftar, col = "black",lty = 2)
 
 
 # -------------FIGURA CONTORNOS DE RIESGO LBPA -------------------------------
-#par(mfrow = c(2, 2))
+par(mfrow = c(1, 1))
 
 
 files=read.admbFit('LBPA')
@@ -160,9 +160,8 @@ z <- kde2d(x, y, n = 100)
 plot(x,y, col='gray',pch = 19,xlab="SPR",ylab="F",main="Uncertainty levels")
      #xlim = c(0,max(x)),ylim=c(0,max(y)))
 contour(z, lwd = 1, add = TRUE, nlevels=5, col = "blue")
-lines(SPR_est,Fcr_est/Ftar, type="p", pch = 19, cex=2)
+lines(SPR_est,Fcr_est, type="p", pch = 19, cex=2)
 
-#contour(z, lwd = 2, add = TRUE, nlevels=15, col = hcl.colors(10, "Spectral"))
 abline(v = 0.4,  col = "black",lty = 2)
 abline(h = est[totPar], col = "black",lty = 2)
 
