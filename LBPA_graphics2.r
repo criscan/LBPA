@@ -103,7 +103,7 @@ plot(BinLen,
      main="Model fit",xlim = c(min(BinLen),1.05*max(BinLen)))
 
 
-for (i in 1:4) {
+for (i in 1:NObsFre) {
   lines(BinLen, ObsFre[i,]/max(ObsFre[i,]), type="l",  cex=0.6, col="red", pch = 16)
 }
 lines(BinLen,PredFre/max(PredFre),type="l",lwd=2)
