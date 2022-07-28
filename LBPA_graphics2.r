@@ -1,5 +1,5 @@
 rm(list=ls(all=TRUE)) # erasure all objects
-system('./LBPA -ind lbpa.dat')  # for model running
+system('./LBPA -ind lbpa_centolla.dat')  # for model running
 
 source('read.admb.R')
 source('read.admbFit.R')
@@ -42,9 +42,9 @@ for (i in 1:NObsFre) {
 }
 
 lines(BinLen,
-     PredFre/max(PredFre),type="l",col="red",
-     lwd=1,
-     ylim=c(0, 1)) 
+      PredFre/max(PredFre),type="l",col="red",
+      lwd=2,
+      ylim=c(0, 1))
 
 
 # 2
@@ -54,7 +54,27 @@ plot(ObsFre[1,],PredFre,  cex=0.6, col="black", pch = 16,ylab="Predicted", xlab=
 for (i in 1:NObsFre) {
   lines(ObsFre[i,],PredFre, type="p", cex=0.6, col="black", pch = 16)
 }
-lines(PredFre,PredFre, type="l", col="red", lwd=1)
+lines(PredFre,PredFre, type="l", col="red", lwd=2)
+
+
+
+# 2b -------------------------------------------
+#par(mfrow = c(1, 1))
+
+plot(BinLen,
+     PredFre/max(PredFre),type="l",
+     ylab="Frequency",
+     xlab="Length",
+     ylim=c(0, 1),
+     main="Model fit",xlim = c(min(BinLen),1.05*max(BinLen)))
+
+
+for (i in 1:NObsFre) {
+  lines(BinLen, ObsFre[i,]/max(ObsFre[i,]), type="l",  cex=0.6, col="red", pch = 16)
+}
+lines(BinLen,PredFre/max(PredFre),type="l",lwd=2)
+     
+
 
 #---------FIGURA 2-------------------------------------
 
@@ -92,22 +112,6 @@ lines(BinLen,S2, lwd=3, col="green", xlim = c(min(BinLen),1.1*max(BinLen)))
 legend(x = "topright",legend=c("Selectivity","Maturity"), bty = "n", col=c(1,3), lwd=3)
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
-# 2b -------------------------------------------
-#par(mfrow = c(1, 1))
-
-plot(BinLen,
-     PredFre/max(PredFre),type="l",
-     ylab="Frequency",
-     xlab="Length",
-     ylim=c(0, 1),
-     main="Model fit",xlim = c(min(BinLen),1.05*max(BinLen)))
-
-
-for (i in 1:NObsFre) {
-  lines(BinLen, ObsFre[i,]/max(ObsFre[i,]), type="l",  cex=0.6, col="red", pch = 16)
-}
-lines(BinLen,PredFre/max(PredFre),type="l",lwd=2)
-     
 
 
 
@@ -115,6 +119,7 @@ lines(BinLen,PredFre/max(PredFre),type="l",lwd=2)
 Fcr_est=results[1]
 Ftar=results[7]
 SPR_est=puntos[2]
+SPR_tar=puntos[3]
 
 
 plot(Fcr,YPR/max(YPR),type="l", ylab="YPR, SPR", xlab="Fishing mortality", lwd=3, col="green",
@@ -133,7 +138,6 @@ abline(v = Ftar, col = "black",lty = 2)
 # -------------FIGURA CONTORNOS DE RIESGO LBPA -------------------------------
 par(mfrow = c(1, 1))
 
-
 files=read.admbFit('LBPA')
 attach(files)
 library(MASS)
@@ -145,8 +149,8 @@ V = cov[c(totPar-1, totPar),c(totPar-1, totPar)]
 sd=std[c(totPar-1, totPar)]
 
 
-p_low=1-pnorm(est[c(totPar-1)],0.4,std[c(totPar-1)])
-p_high=pnorm(est[c(totPar)],est[totPar],std[c(totPar)])
+p_low=1-pnorm(SPR_est,SPR_tar,std[c(totPar-1)])
+p_high=pnorm(Fcr_est,Ftar,std[c(totPar)])
 
 
 set.seed(1)
@@ -162,28 +166,30 @@ plot(x,y, col='gray',pch = 19,xlab="SPR",ylab="F",main="Uncertainty levels")
 contour(z, lwd = 1, add = TRUE, nlevels=5, col = "blue")
 lines(SPR_est,Fcr_est, type="p", pch = 19, cex=2)
 
-abline(v = 0.4,  col = "black",lty = 2)
-abline(h = est[totPar], col = "black",lty = 2)
+#contour(z, lwd = 2, add = TRUE, nlevels=15, col = hcl.colors(10, "Spectral"))
+abline(v = SPR_tar,  col = "black",lty = 2)
+abline(h = Ftar, col = "black",lty = 2)
 
 
-# Curva probabilidad normal
 
-eje=seq(0,1,by=0.01)
+# Curva probabilidad normal------------------
+par(mfrow = c(2, 1))
+
+eje=seq(0,1,by=0.005)
 d1=dnorm(eje,U[1],sd[1])
 
 plot(eje,d1/max(d1),type="l", ylab="Density", xlab="SPR",main=paste("p(SPR<0.4)=",round(p_low,3))) 
 polygon(c(0, eje, SPR_est), c(0, d1/max(d1), 0), col = rgb(1, 0.27, 0, alpha = 0.2))
 
-abline(v = 0.4,  col = "black",lty = 2)
+abline(v = SPR_tar,  col = "black",lty = 2)
 
 
 eje=seq(0,2*U[2],by=0.01)
 d2=dnorm(eje,U[2],sd[2])
 plot(eje,d2/max(d2),type="l", ylab="Density", xlab="F",main=paste("p(F>Ftar)=",round(p_high,3)))
 polygon(c(0, eje, U[2]), c(0, d2/max(d2), 0), col = c("cyan"))
-abline(v = est[totPar],  col = "black",lty = 2)
+abline(v=Ftar,  col = "black",lty = 2)
 
-#-----------------------------------------------
 #---------------------------------------------------------------------------------------------------------
 Nage<-data$Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity[,4]
 Cage<-data$Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity[,5]
