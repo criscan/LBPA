@@ -1,5 +1,5 @@
 rm(list=ls(all=TRUE)) # erasure all objects
-system('./LBPA -ind lbpa_centolla.dat')  # for model running
+system('./LBPA -ind lbpa.dat')  # for model running
 
 source('read.admb.R')
 source('read.admbFit.R')
@@ -26,54 +26,79 @@ results=data$F_L50_slope_a0_cv_Lr_Ftar
 
 #---------FIGURA 1-------------------------------------
 
-#par(mfrow = c(2, 1))
+par(mfrow = c(2, 2))
 
 # 1
-plot(BinLen,
-     PredFre/max(PredFre),type="l",
+
+
+plot(BinLen, ObsFre[1,], col="black",
      ylab="Frequency",
      xlab="Length",
-     ylim=c(0, 1),
+     ylim=c(0, max(ObsFre)),
      main="Model fit",xlim = c(min(BinLen),1.05*max(BinLen)))
 
-
 for (i in 1:NObsFre) {
-  lines(BinLen, ObsFre[i,]/max(ObsFre[i,]), type="p",  cex=0.6, col="black", pch = 16)
+  lines(BinLen, ObsFre[i,], type="p",col="black")
 }
 
-lines(BinLen,
-      PredFre/max(PredFre),type="l",col="red",
-      lwd=2,
-      ylim=c(0, 1))
 
+lines(BinLen,
+      PredFre,type="l",col="red",
+      lwd=2)
+
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
 # 2
 
-plot(ObsFre[1,],PredFre,  cex=0.6, col="black", pch = 16,ylab="Predicted", xlab="Observed", main="Model fit")
+plot(ObsFre[1,],PredFre,  col="black", ylab="Predicted", xlab="Observed", main="Model fit")
 
 for (i in 1:NObsFre) {
-  lines(ObsFre[i,],PredFre, type="p", cex=0.6, col="black", pch = 16)
+  lines(ObsFre[i,],PredFre, type="p", col="black")
 }
 lines(PredFre,PredFre, type="l", col="red", lwd=2)
 
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
+# 3
+
+res=(ObsFre-PredFre)
+res=res/sd(res)
+
+plot(BinLen,res[1,],  type="h", col="black", lwd=3,
+     ylab="Residuals", xlab="Length", main="Normalized residuals")
+
+for (i in 1:NObsFre) {
+  lines(BinLen,res[i,], type="h", col="black", lwd=3)
+}
+abline(h=0,lwd=2)
 
 
-# 2b -------------------------------------------
-#par(mfrow = c(1, 1))
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
+# 4 
+
+
+hist(res,xlab="Residual",main="Histogram of normalized residuals")
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
+
+
+
+# 2 -------------------------------------------
+par(mfrow = c(1, 1))
 
 plot(BinLen,
-     PredFre/max(PredFre),type="l",
+     ObsFre[1,],type="l",
+     cex=0.6, 
+     col="red", pch = 16,
      ylab="Frequency",
      xlab="Length",
-     ylim=c(0, 1),
+     ylim=c(0, 1.05*max(ObsFre)),
      main="Model fit",xlim = c(min(BinLen),1.05*max(BinLen)))
 
 
 for (i in 1:NObsFre) {
-  lines(BinLen, ObsFre[i,]/max(ObsFre[i,]), type="l",  cex=0.6, col="red", pch = 16)
+  lines(BinLen, ObsFre[i,], type="l",  cex=0.6, col="red", pch = 16)
 }
-lines(BinLen,PredFre/max(PredFre),type="l",lwd=2)
-     
+lines(BinLen,PredFre,type="l",lwd=3)
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
 
 #---------FIGURA 2-------------------------------------
@@ -101,6 +126,8 @@ legend(x = "topright",
        bty = "n",
        col=c(1,2,3),
        lwd=3)
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
+
 
 # 2
 S1 <- (data$Selectivity_and_maturity_at_length[1,])
@@ -134,7 +161,6 @@ abline(v = Ftar, col = "black",lty = 2)
 
 
 
-
 # -------------FIGURA CONTORNOS DE RIESGO LBPA -------------------------------
 par(mfrow = c(1, 1))
 
@@ -155,14 +181,14 @@ p_high=pnorm(Fcr_est,Ftar,std[c(totPar)])
 
 set.seed(1)
 
-#Generamos la poblaciÃ³n de tamaÃ±o N=1000
+#Generamos la población de tamaño N=1000
 T = mvrnorm(1000,U, V)
 x=T[,1]
 y=T[,2]
 z <- kde2d(x, y, n = 100)
 
 plot(x,y, col='gray',pch = 19,xlab="SPR",ylab="F",main="Uncertainty levels")
-     #xlim = c(0,max(x)),ylim=c(0,max(y)))
+#xlim = c(0,max(x)),ylim=c(0,max(y)))
 contour(z, lwd = 1, add = TRUE, nlevels=5, col = "blue")
 lines(SPR_est,Fcr_est, type="p", pch = 19, cex=2)
 
@@ -223,7 +249,7 @@ plot(BinLen,colSums(Nage0length), type="l", lwd=3, col="black",
      ylab="Frequency", 
      xlab="Length",
      main="Unfished Population at-length",cex.main = 1.5)
-
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
 
 lines(BinLen,Nage0length[1,], 
       type="l",cex.lab = 1.5, 
@@ -231,7 +257,7 @@ lines(BinLen,Nage0length[1,],
       col="lightblue", 
       xlim = c(min(BinLen),1.1*max(BinLen)),
       ylim = c(0,max(Nage0length)))
-
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
 
 for (i in 2:nages) {
   lines(BinLen,Nage0length[i,], type="l", lwd=4, col="lightblue")
@@ -250,7 +276,7 @@ lines(BinLen,Nagelength[1,],
       col="lightblue", 
       xlim = c(min(BinLen),1.1*max(BinLen)),
       ylim = c(0,max(Nagelength)))
-
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
 
 for (i in 2:nages) {
   lines(BinLen,Nagelength[i,], type="l", lwd=4, col="lightblue")
@@ -274,4 +300,4 @@ lines(BinLen,Cagelength[1,],
 for (i in 2:nages) {
   lines(BinLen,Cagelength[i,], type="l", lwd=4, col="lightblue")
 }
-
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
