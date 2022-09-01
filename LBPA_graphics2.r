@@ -181,7 +181,7 @@ p_high=pnorm(Fcr_est,Ftar,std[c(totPar)])
 
 set.seed(1)
 
-#Generamos la población de tamaño N=1000
+#Generamos la poblaciÃ³n de tamaÃ±o N=1000
 T = mvrnorm(1000,U, V)
 x=T[,1]
 y=T[,2]
@@ -300,4 +300,11 @@ lines(BinLen,Cagelength[1,],
 for (i in 2:nages) {
   lines(BinLen,Cagelength[i,], type="l", lwd=4, col="lightblue")
 }
-grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)  
+
+
+edad=c(1:nages)
+plot(edad,Cage,type="h",col="lightblue",lwd=20,
+     xlab="Age",ylab="Frecuency",
+     main="Predicted Catch at-age",cex.main = 1.5)
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)
