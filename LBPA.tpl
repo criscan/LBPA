@@ -58,8 +58,8 @@ INITIALIZATION_SECTION
   log_rango  logslopeini
   log_Fcr    logFcrini
   log_Lo     logLoini
-  log_alfa   logs1ini
-  log_beta   logs2ini
+  log_a0     logs1ini
+  log_cv   logs2ini
 
 PARAMETER_SECTION
 
@@ -67,8 +67,8 @@ PARAMETER_SECTION
  init_number log_rango(f2) 
  init_number log_Fcr(f3) 
  init_number log_Lo(f4)
- init_number log_alfa(f5)
- init_number log_beta(f6)
+ init_number log_a0(f5)
+ init_number log_cv(f6)
 
 
  vector N0(1,nages)
@@ -158,7 +158,7 @@ FUNCTION Prob_length2age
     mu_edad(i)=Linf*(1-exp(-k))+exp(-k)*mu_edad(i-1);
   }
 
-  sigma_edad=exp(log_alfa)+exp(log_beta)*mu_edad;
+  sigma_edad=exp(log_a0)+exp(log_cv)*mu_edad;
   
   Prob_talla = ALK( mu_edad, sigma_edad, len_bins);
 
@@ -258,8 +258,8 @@ FUNCTION Log_likelihood
   likeval(6) = 0.5*square((log_rango-logslopeini)/cv2);
   likeval(7) = 0.5*square((log_Fcr-logFcrini)/cv3);
   likeval(2) = 0.5*square((log_Lo-logLoini)/cv4);
-  likeval(3) = 0.5*square((log_alfa-logs1ini)/cv5);
-  likeval(4) = 0.5*square((log_beta-logs2ini)/cv6);
+  likeval(3) = 0.5*square((log_a0-logs1ini)/cv5);
+  likeval(4) = 0.5*square((log_cv-logs2ini)/cv6);
   f          = sum(likeval);
 
 
@@ -356,8 +356,8 @@ REPORT_SECTION
   report<<"Fishing mortality (F)                 :"<<" "<<exp(log_Fcr)<<endl;
   report<<"Selectivity length at 50% (L50)       :"<<" "<<exp(log_L50)<<endl;
   report<<"Selectivity slope (d)                 :"<<" "<<exp(log_rango)<<endl;
-  report<<"Invariant std deviation in length (a0):"<<" "<<exp(log_alfa)<<endl;
-  report<<"Coeff of variation length at-age (cv) :"<<" "<<exp(log_beta)<<endl;
+  report<<"Invariant std deviation in length (a0):"<<" "<<exp(log_a0)<<endl;
+  report<<"Coeff of variation length at-age (cv) :"<<" "<<exp(log_cv)<<endl;
   report<<"Size of recruits (Lr)                 :"<<" "<<exp(log_Lo)<<endl;
   report << " " << endl;
   report << "******************************************************************" << endl;
@@ -424,7 +424,7 @@ REPORT_SECTION
   print_R << msex<<endl;
   print_R << "Model_parameters " << endl;
   print_R<<"F_L50_slope_a0_cv_Lr_Ftar"<<endl;
-  print_R<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_alfa)<<" "<<exp(log_beta)<<" "<<exp(log_Lo)<<" "<<Ftar<<endl;
+  print_R<<exp(log_Fcr)<<" "<<exp(log_L50)<<" "<<exp(log_rango)<<" "<<exp(log_a0)<<" "<<exp(log_cv)<<" "<<exp(log_Lo)<<" "<<Ftar<<endl;
   print_R<<"F/Ftar_SPR_SPRtar"<<endl;
   print_R<<exp(log_Fcr)/Ftar<<" "<<SPR<<" "<<ratio<<endl;
   print_R<<"YPRcurr_YPRtar"<<endl;
