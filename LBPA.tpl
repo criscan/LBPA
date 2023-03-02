@@ -266,27 +266,31 @@ FUNCTION Log_likelihood
 
 REPORT_SECTION
 
-  Ftar = 0.01;
-  diff = 1.;
-  while(diff>1e-5){
+  Ftar=0.0001;
+   diff=10;
+   
+   while(diff>1.0001){
 
-    Ftar += 0.005;
-    F     = Ftar*Sel_a;
-    Z     = F+M;
-    S     = exp(-1.*Z);
+    Ftar=Ftar*diff;
+    F=Ftar*Sel_a;
+    Z=F+M;
+    S=exp(-1.*Z);
  
     Npr(1)=1.0;
-    for (int i=2;i<=nages;i++)
-      Npr(i)=Npr(i-1)*exp(-Z(i-1));
+      for (int i=2;i<=nages;i++){
+    Npr(i)=Npr(i-1)*exp(-Z(i-1));
+    }
 
-    Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
+   Npr(nages)=Npr(nages)/(1-exp(-Z(nages)));
+   BPR=alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
+   YPR=(alfa*BPR/(beta+BPR))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,Npr))*Prob_talla,wmed));////new
+  
+   diff=BPR/(B0*ratio);
 
-    BPR_tar = alfa*sum(elem_prod(elem_prod(Npr,exp(-dts*Z))*Prob_talla,elem_prod(wmed,msex)))-beta;
-    YPR_tar = (alfa*BPR_tar/(beta+BPR_tar))*sum(elem_prod(elem_prod(elem_div(F,Z),elem_prod(1.-S,N))*Prob_talla,wmed));////new
-    diff    = square(BPR_tar/B0-ratio);
-    // diff    = square(BPR/B0-ratio);
+ }
 
-  }
+  YPR_tar=YPR;
+  BPR_tar=B0*ratio;
 
   Ntar   = Npr;
   Fratio = exp(log_Fcr)/Ftar;
