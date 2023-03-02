@@ -1,11 +1,14 @@
 rm(list=ls(all=TRUE)) # erasure all objects
-system('./LBPA -ind lbpa.dat')  # for model running
+system('./erase LBPA.rep')  
+system('./erase LBPA.std')  
+
+
+system('./LBPA -ind H0.dat')  # for model running
 
 source('read.admb.R')
 source('read.admbFit.R')
 
 data <-read.rep('For_R.rep')
-nages<-10 #this depends on the specie
 
 nages <- length(data$Probability_of_length[,1])
 age <- seq(1,nages) 
@@ -24,11 +27,9 @@ results=data$F_L50_slope_a0_cv_Lr_Ftar
 
 
 
-#---------FIGURA 1-------------------------------------
+#Ajuste y residuales-------------------------------------
 
 par(mfrow = c(2, 2))
-
-# 1
 
 
 plot(BinLen, ObsFre[1,], col="black",
@@ -48,7 +49,6 @@ lines(BinLen,
 
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
-# 2
 
 plot(ObsFre[1,],PredFre,  col="black", ylab="Predicted", xlab="Observed", main="Model fit")
 
@@ -58,30 +58,24 @@ for (i in 1:NObsFre) {
 lines(PredFre,PredFre, type="l", col="red", lwd=2)
 
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
-# 3
 
 res=(ObsFre-PredFre)
 res=res/sd(res)
 
-plot(BinLen,res[1,],  type="h", col="black", lwd=3,
-     ylab="Residuals", xlab="Length", main="Normalized residuals")
 
-for (i in 1:NObsFre) {
-  lines(BinLen,res[i,], type="h", col="black", lwd=3)
-}
-abline(h=0,lwd=2)
+qqnorm(res,type="p", col="black") 
+qqline(res, col="red", lwd=2)
+grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)
 
+hist(res,xlab="Residual",main="Histogram of normalized residuals",prob=T)
+x <- seq(min(res), max(res), length = 200)
+lines(x, dnorm(x), col = "red", lwd = 2)
 
-grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
-# 4 
-
-
-hist(res,xlab="Residual",main="Histogram of normalized residuals")
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
 
 
-# 2 -------------------------------------------
+#Ajuste datos en lineas -------------------------------------------
 par(mfrow = c(1, 1))
 
 plot(BinLen,
@@ -101,9 +95,7 @@ lines(BinLen,PredFre,type="l",lwd=3)
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)    
 
 
-#---------FIGURA 2-------------------------------------
-
-#par(mfrow = c(2, 2))
+#Frecs teoricas-------------------------------------
 
 
 # 1
@@ -129,7 +121,7 @@ legend(x = "topright",
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)   
 
 
-# 2
+#Ojivas-------------------------------------
 S1 <- (data$Selectivity_and_maturity_at_length[1,])
 S2 <- (data$Selectivity_and_maturity_at_length[2,])
 
@@ -142,7 +134,8 @@ grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)
 
 
 
-# 3
+#Por recluta------------------------------------
+
 Fcr_est=results[1]
 Ftar=results[7]
 SPR_est=puntos[2]
@@ -150,18 +143,17 @@ SPR_tar=puntos[3]
 
 
 plot(Fcr,YPR/max(YPR),type="l", ylab="YPR, SPR", xlab="Fishing mortality", lwd=3, col="green",
-     main="Per-recruit analysis")
-lines(Fcr,SPR/max(SPR),type="l", ylab="YPR, SPR", xlab="F/Ftar", lwd=3, col="red")
+     main=paste("Per-recruit analysis  (SPR=",round(SPR_est,2)," F/Ftar=",round(Fcr_est/Ftar,2),")"))
+lines(Fcr,SPR/max(SPR),type="l", ylab="YPR, SPR", lwd=3, col="red")
 legend(x = "topright",legend=c("YPR","SPR"), bty = "n", col=c(3,2), lwd=3)
 
-
 lines(Fcr_est,SPR_est,type="p",lwd=10)
-abline(h = 0.4, col = "black",lty = 2)
+abline(h = SPR_tar, col = "black",lty = 2)
 abline(v = Ftar, col = "black",lty = 2)
 
 
 
-# -------------FIGURA CONTORNOS DE RIESGO LBPA -------------------------------
+#Riesgo e incertidumbre------------------------------------
 par(mfrow = c(1, 1))
 
 files=read.admbFit('LBPA')
@@ -177,11 +169,16 @@ sd=std[c(totPar-1, totPar)]
 
 p_low=1-pnorm(SPR_est,SPR_tar,std[c(totPar-1)])
 p_high=pnorm(Fcr_est,Ftar,std[c(totPar)])
+lispr=SPR_est-1.96*std[c(totPar-1)]
+lsspr=SPR_est+1.96*std[c(totPar-1)]
+liF=(Fcr_est-1.96*std[c(totPar)])/Ftar
+lsF=(Fcr_est+1.96*std[c(totPar)])/Ftar
 
 
+
+#Remuestreo N=1000
 set.seed(1)
 
-#Generamos la población de tamaño N=1000
 T = mvrnorm(1000,U, V)
 x=T[,1]
 y=T[,2]
@@ -204,7 +201,9 @@ par(mfrow = c(2, 1))
 eje=seq(0,1,by=0.005)
 d1=dnorm(eje,U[1],sd[1])
 
-plot(eje,d1/max(d1),type="l", ylab="Density", xlab="SPR",main=paste("p(SPR<0.4)=",round(p_low,3))) 
+
+plot(eje,d1/max(d1),type="l", ylab="Density", xlab="SPR",main=paste("p(SPR<SPRtar)=",round(p_low,3),
+                                                                    "; CI_SPR= [",round(lispr,2),"-",round(lsspr,2),"]")) 
 polygon(c(0, eje, SPR_est), c(0, d1/max(d1), 0), col = rgb(1, 0.27, 0, alpha = 0.2))
 
 abline(v = SPR_tar,  col = "black",lty = 2)
@@ -212,7 +211,8 @@ abline(v = SPR_tar,  col = "black",lty = 2)
 
 eje=seq(0,2*U[2],by=0.01)
 d2=dnorm(eje,U[2],sd[2])
-plot(eje,d2/max(d2),type="l", ylab="Density", xlab="F",main=paste("p(F>Ftar)=",round(p_high,3)))
+plot(eje,d2/max(d2),type="l", ylab="Density", xlab="F",main=paste("p(F>Ftar)=",round(p_high,3),
+                                                                  "; CI_F/Ftar= [",round(liF,2),"-",round(lsF,2),"]")) 
 polygon(c(0, eje, U[2]), c(0, d2/max(d2), 0), col = c("cyan"))
 abline(v=Ftar,  col = "black",lty = 2)
 
@@ -301,7 +301,6 @@ for (i in 2:nages) {
   lines(BinLen,Cagelength[i,], type="l", lwd=4, col="lightblue")
 }
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)  
-
 
 edad=c(1:nages)
 barplot(Cage~edad,col="lightblue",xlab="Age",ylab="Frecuency",
