@@ -300,6 +300,12 @@ rownames(tabla2) <- c("Virginal biomass per-recruit (BPR0)", "Current BPR", "Tar
                       "Current yield per-recruit (YPRcur)","Target  yield per-recruit (YPRtar)")
 
 
+Ltot=data$Proportions+data$Lr+data$a0+data$cv+data$L50+data$slope+data$F
+tabla3 <- matrix(ncol=1, round(c(data$Proportions,data$Lr,data$a0,data$cv,data$L50,data$slope,data$F,Ltot),2))
+rownames(tabla3) <- c("Length frequencies proportions", "Lr", "a0","cv","L50", "d","Initial F","Total likelihood")
+
+
 knitr::kable(tabla1,"simple",caption = "1: Estimated model parameters")
 knitr::kable(tabla2,"simple",caption = "2: Derivates quantities")
+knitr::kable(tabla3,"simple",caption = "3: Log-likelihood_components")
 
