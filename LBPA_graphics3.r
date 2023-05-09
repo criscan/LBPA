@@ -3,7 +3,8 @@ system('./erase LBPA.rep')
 system('./erase LBPA.std')  
 
 
-#system('./LBPA -ind lbpa_centolla.dat')  # for model running
+library(knitr)
+
 system('./LBPA -ind lbpa.dat')  # for model running
 
 
@@ -29,7 +30,7 @@ results=data$F_L50_slope_a0_cv_Lr_Ftar
 
 
 
-#Ajuste y residuales-------------------------------------
+#Model fit and residuals-------------------------------------
 
 par(mfrow = c(2, 2))
 
@@ -67,8 +68,7 @@ box()
 
 
 
-#Frecs teoricas-------------------------------------
-#par(mfrow = c(2, 1))
+#Theorical length comps-------------------------------------
 
 
 # 1
@@ -78,7 +78,7 @@ L2 <- (data$Length_frequency_of_exploitable_population_current_target_unfished[2
 L3 <- (data$Length_frequency_of_exploitable_population_current_target_unfished[3,])
 
 
-#Ojivas-------------------------------------
+#Selectivity and maturity-------------------------------------
 S1 <- (data$Selectivity_and_maturity_at_length[1,])
 S2 <- (data$Selectivity_and_maturity_at_length[2,])
 
@@ -93,11 +93,12 @@ legend(x = "topleft",
        col=c("black","green"),
        lwd=3)
 
-#Por recluta------------------------------------
+#Per recruit------------------------------------
 Fcr_est=results[1]
 Ftar=results[7]
 SPR_est=puntos[2]
 SPR_tar=puntos[3]
+
 
 
 plot(Fcr,YPR/max(YPR),type="l", ylab="YPR, SPR", xlab="Fishing mortality", lwd=3, col="green",
@@ -114,7 +115,6 @@ legend(x = "topright",
        col=c("black","green"),
        lwd=3)
 
-#---------------------------------------------------------------------------------------------------------
 par(mfrow = c(2, 2))
 
 plot(c(BinLen,tail(BinLen,1)),c(L3,0), ylab="Frequency", xlab="Length", type="l", 
@@ -133,7 +133,7 @@ legend(x = "topleft",
        lwd=3)
 
 
-#Riesgo e incertidumbre------------------------------------
+#Risk and uncertainty------------------------------------
 
 files=read.admbFit('LBPA')
 attach(files)
@@ -187,9 +187,8 @@ df=density(y)
 plot(df, ylab="Density", xlab="F",main=paste("p(F>Ftar)=",round(p_high,3),"; CI_F= [",round(liF,2),"-",round(lsF,2),"]"),cex.main=1.0) 
 polygon(df, col = c("cyan"))
 abline(v=Ftar,  col = "black",lty = 2)
-#-----------------------------------------------------------
 
-
+#Number at-age----------------------------------------
 
 
 Nage<-data$Age_Length_s.e_N_Catch_Selectivity_F_Weight_Maturity[,4]
@@ -241,7 +240,6 @@ for (i in 2:nages) {
 
 
 
-#-----------------------------------------------------------
 plot(BinLen,colSums(Nagelength), type="l", lwd=3, col="black",
      ylab="Frequency", 
      xlab="Length",
@@ -260,7 +258,6 @@ for (i in 2:nages) {
   lines(BinLen,Nagelength[i,], type="l", lwd=4, col="lightblue")
 }
 
-#--------------------------------------------------------
 plot(BinLen,PredFre, type="l", lwd=3, col="black",
      ylab="Frequency", 
      xlab="Length",
@@ -285,3 +282,24 @@ barplot(Cage~edad,col="lightblue",xlab="Age",ylab="Frecuency",
      main="Predicted Catch at-age",cex.main = 1.)
 grid(nx = NULL, ny = NULL, lty = 2, col = "gray",lwd = 1)
 box()
+
+
+tabla1 <- matrix(ncol=1, round(data$F_L50_slope_a0_cv_Lr_Ftar[1:6], 2))
+rownames(tabla1) <- c("Fishing Mortality (F)", "Selectivity length at 50% (L50)", "Selectivity slope (d)",
+                     "Invariant std deviation in length (a0)", "Coeff of variation length at-age (cv)",
+                     "Size of recruits (Lr)")
+
+
+YPRcur=data$YPRcurr_YPRtar[1]
+YPRtar=data$YPRcurr_YPRtar[2]
+
+B0=SPR[1]
+tabla2 <- matrix(ncol=1, round(c(B0,B0*SPR_est, B0*SPR_tar,SPR_est,SPR_tar,Ftar,Fcr_est/Ftar,YPRcur,YPRtar),2))
+rownames(tabla2) <- c("Virginal biomass per-recruit (BPR0)", "Current BPR", "Target BPR","Current spawning potential ratio (SPR)",
+                      "Target SPR (SPRtar)", "Target fishing mortality (Ftar)","Overfishing index (F/Ftar)",
+                      "Current yield per-recruit (YPRcur)","Target  yield per-recruit (YPRtar)")
+
+
+knitr::kable(tabla1,"simple",caption = "1: Estimated model parameters")
+knitr::kable(tabla2,"simple",caption = "2: Derivates quantities")
+
