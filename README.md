@@ -2,6 +2,8 @@
 Length-Based Pseudo-cohort Analysis (LBPA)
 (https://doi.org/10.1016/j.fishres.2020.105810)
 
+A new release as R-package can be found in https://github.com/criscan/LBPA_r
+
 Stock status for many medium- and small-scale fisheries is unknown due, for example, to a lack of catch data and
 the absence of scientific observer programs. However, length-frequency data are often available for such fisheries
 because they are the cheapest and easiest data to obtain. Various stock assessment methods have been developed
